@@ -51,17 +51,39 @@
 
             <!-- 登录表单 -->
             <v-card-text class="login-form">
+              <!-- 错误提示 -->
+              <v-alert
+                v-if="errorMessage"
+                type="error"
+                variant="tonal"
+                class="mb-4"
+                closable
+                @click:close="errorMessage = ''"
+              >
+                {{ errorMessage }}
+              </v-alert>
+
+              <!-- 成功提示 -->
+              <v-alert
+                v-if="successMessage"
+                type="success"
+                variant="tonal"
+                class="mb-4"
+              >
+                {{ successMessage }}
+              </v-alert>
+
               <v-form 
                 ref="loginForm" 
                 v-model="formValid" 
                 @submit.prevent="handleLogin"
               >
-                <!-- 用户名输入框 -->
+                <!-- 邮箱输入框 -->
                 <v-text-field
-                  v-model="loginData.username"
-                  :rules="usernameRules"
-                  label="用户名"
-                  prepend-inner-icon="mdi-account-outline"
+                  v-model="loginData.email"
+                  :rules="emailRules"
+                  label="邮箱地址"
+                  prepend-inner-icon="mdi-email-outline"
                   variant="outlined"
                   class="login-input"
                   :disabled="loading"
@@ -139,19 +161,13 @@
  * @description 处理用户登录、表单验证和界面交互
  */
 
-/**
- * 登录数据接口
- * 
- * @description 定义登录表单的数据结构
- */
-interface LoginData {
-  /** 用户名 */
-  username: string;
-  /** 密码 */
-  password: string;
-  /** 是否记住登录状态 */
-  rememberMe: boolean;
-}
+// 导入认证服务和类型
+import { authService } from '@/services';
+import type { LoginFormData } from '@/types/auth';
+import { useRouter } from 'vue-router';
+
+// 获取路由实例
+const router = useRouter();
 
 /**
  * 登录表单引用
@@ -176,19 +192,18 @@ const showPassword = ref(false);
 /**
  * 登录数据
  */
-const loginData = ref<LoginData>({
-  username: '',
+const loginData = ref<LoginFormData>({
+  email: '',
   password: '',
   rememberMe: false
 });
 
 /**
- * 用户名验证规则
+ * 邮箱验证规则
  */
-const usernameRules = [
-  (v: string) => !!v || '请输入用户名',
-  (v: string) => v.length >= 3 || '用户名至少3个字符',
-  (v: string) => v.length <= 20 || '用户名不能超过20个字符'
+const emailRules = [
+  (v: string) => !!v || '请输入邮箱地址',
+  (v: string) => /.+@.+\..+/.test(v) || '请输入有效的邮箱地址'
 ];
 
 /**
@@ -223,6 +238,40 @@ const getParticleStyle = (index: number) => {
 };
 
 /**
+ * 错误消息状态
+ */
+const errorMessage = ref('');
+
+/**
+ * 成功消息状态
+ */
+const successMessage = ref('');
+
+/**
+ * 显示错误提示
+ * 
+ * @param message - 错误消息
+ */
+const showError = (message: string) => {
+  errorMessage.value = message;
+  setTimeout(() => {
+    errorMessage.value = '';
+  }, 5000);
+};
+
+/**
+ * 显示成功提示
+ * 
+ * @param message - 成功消息
+ */
+const showSuccess = (message: string) => {
+  successMessage.value = message;
+  setTimeout(() => {
+    successMessage.value = '';
+  }, 3000);
+};
+
+/**
  * 处理登录提交
  * 
  * @description 验证表单并执行登录逻辑
@@ -234,44 +283,57 @@ const handleLogin = async (): Promise<void> => {
   if (!valid) return;
 
   loading.value = true;
+  errorMessage.value = '';
+  successMessage.value = '';
   
   try {
-    // 模拟登录API调用
-    await simulateLogin(loginData.value);
+    // 调用真实的登录API
+    const response = await authService.login({
+      email: loginData.value.email,
+      password: loginData.value.password
+    });
     
-    // 登录成功，跳转到主页
-    console.log('登录成功:', loginData.value.username);
+    // 登录成功处理
+    console.log('登录成功:', response);
+    showSuccess('登录成功！正在跳转...');
     
-    // 这里应该跳转到主页或仪表板
-    // await router.push('/');
+    // 处理记住我功能
+    if (loginData.value.rememberMe) {
+      localStorage.setItem('rememberedEmail', loginData.value.email);
+    } else {
+      localStorage.removeItem('rememberedEmail');
+    }
     
-  } catch (error) {
+    // 延迟跳转，让用户看到成功提示
+    setTimeout(async () => {
+      await router.push('/');
+    }, 1500);
+    
+  } catch (error: any) {
     console.error('登录失败:', error);
-    // 这里应该显示错误提示
+    
+    // 根据错误类型显示不同的错误消息
+    let errorMsg = '登录失败，请稍后重试';
+    
+    if (error.message) {
+      if (error.message.includes('401') || error.message.includes('认证失败')) {
+        errorMsg = '邮箱或密码错误，请检查后重试';
+      } else if (error.message.includes('网络')) {
+        errorMsg = '网络连接失败，请检查网络设置';
+      } else if (error.message.includes('超时')) {
+        errorMsg = '请求超时，请稍后重试';
+      } else {
+        errorMsg = error.message;
+      }
+    }
+    
+    showError(errorMsg);
   } finally {
     loading.value = false;
   }
 };
 
-/**
- * 模拟登录API
- * 
- * @description 模拟后端登录验证过程
- * @param data - 登录数据
- * @returns Promise<void>
- */
-const simulateLogin = async (data: LoginData): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // 模拟登录验证
-      if (data.username === 'admin' && data.password === '123456') {
-        resolve();
-      } else {
-        reject(new Error('用户名或密码错误'));
-      }
-    }, 2000); // 模拟网络延迟
-  });
-};
+
 
 /**
  * 处理忘记密码
@@ -290,9 +352,9 @@ onMounted(() => {
   console.log('登录页面已加载');
   
   // 检查是否有记住的登录信息
-  const rememberedUsername = localStorage.getItem('rememberedUsername');
-  if (rememberedUsername) {
-    loginData.value.username = rememberedUsername;
+  const rememberedEmail = localStorage.getItem('rememberedEmail');
+  if (rememberedEmail) {
+    loginData.value.email = rememberedEmail;
     loginData.value.rememberMe = true;
   }
 });
@@ -301,10 +363,10 @@ onMounted(() => {
  * 监听记住我状态变化
  */
 watch(() => loginData.value.rememberMe, (newValue) => {
-  if (newValue && loginData.value.username) {
-    localStorage.setItem('rememberedUsername', loginData.value.username);
+  if (newValue && loginData.value.email) {
+    localStorage.setItem('rememberedEmail', loginData.value.email);
   } else {
-    localStorage.removeItem('rememberedUsername');
+    localStorage.removeItem('rememberedEmail');
   }
 });
 </script>

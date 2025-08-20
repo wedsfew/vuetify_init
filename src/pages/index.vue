@@ -34,8 +34,17 @@
                  variant="outlined"
                  prepend-icon="mdi-login"
                  @click="navigateToLogin"
+                 class="mr-2"
                >
                  查看登录界面
+               </v-btn>
+               <v-btn
+                 color="success"
+                 variant="outlined"
+                 prepend-icon="mdi-api"
+                 @click="navigateToApiTest"
+               >
+                 API 测试页面
                </v-btn>
              </v-card-actions>
           </v-card>
@@ -59,6 +68,12 @@
  * 
  * @description 处理主页面的数据管理和事件处理
  */
+
+// 导入Vue Router
+import { useRouter } from 'vue-router';
+
+// 获取路由实例
+const router = useRouter();
 
 /**
  * 用户信息接口
@@ -182,8 +197,18 @@ const handleRefresh = (): void => {
  * @description 跳转到登录界面进行测试
  */
 const navigateToLogin = (): void => {
-  // 使用编程式导航跳转到登录页面
-  window.open('/login', '_blank');
+  // 使用Vue Router编程式导航跳转到登录页面
+  router.push('/login');
+};
+
+/**
+ * 导航到API测试页面
+ * 
+ * @description 跳转到API测试页面进行全局请求拦截器测试
+ */
+const navigateToApiTest = (): void => {
+  // 使用Vue Router编程式导航跳转到API测试页面
+  router.push('/ApiTest');
 };
 
 /**

@@ -1,1 +1,1 @@
-## 阅读[rule](../../rules/rule.md) rule.md文档,严格按照文档中规则进行开发
+## 阅读[rule](../../rules/rule.md) rules/rule.md, rule.md文档,严格按照文档中规则进行开发
