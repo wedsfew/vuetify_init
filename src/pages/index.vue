@@ -1,311 +1,501 @@
-<template>
-  <v-layout>
-    <v-navigation-drawer v-model="drawer">
-      <v-list density="compact" item-props :items="items" nav />
-
-      <template #append>
-        <v-list-item
-          class="ma-2"
-          link
-          nav
-          prepend-icon="mdi-cog-outline"
-          title="设置"
-          @click="navigateTo('/settings')"
-        />
-      </template>
-    </v-navigation-drawer>
-
-    <v-app-bar border="b" class="ps-4" flat>
-      <v-app-bar-nav-icon v-if="$vuetify.display.smAndDown" @click="drawer = !drawer" />
-
-      <v-app-bar-title>{{ pageTitle }}</v-app-bar-title>
-
-      <template #append>
-        <v-btn class="text-none me-2" height="48" icon slim>
-          <v-avatar color="surface-light" image="https://cdn.vuetifyjs.com/images/john.png" size="32" />
-
-          <v-menu activator="parent">
-            <v-list density="compact" nav>
-              <v-list-item 
-                append-icon="mdi-cog-outline" 
-                link 
-                title="设置" 
-                @click="navigateTo('/settings')"
-              />
-              <v-list-item 
-                append-icon="mdi-logout" 
-                link 
-                title="退出登录" 
-                @click="handleLogout"
-              />
-            </v-list>
-          </v-menu>
-        </v-btn>
-      </template>
-    </v-app-bar>
-
-    <v-main>
-      <div class="pa-4">
-        <v-container>
-          <v-row>
-            <v-col cols="12">
-              <v-card>
-                <v-card-title>
-                  <v-icon class="me-2">mdi-view-dashboard-outline</v-icon>
-                  仪表板
-                </v-card-title>
-                <v-card-text>
-                  <v-row>
-                    <v-col cols="12" md="6" lg="3">
-                      <v-card color="primary" variant="tonal">
-                        <v-card-text>
-                          <div class="text-h6">用户总数</div>
-                          <div class="text-h4">{{ userStats.totalUsers }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="6" lg="3">
-                      <v-card color="success" variant="tonal">
-                        <v-card-text>
-                          <div class="text-h6">活跃用户</div>
-                          <div class="text-h4">{{ userStats.activeUsers }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="6" lg="3">
-                      <v-card color="warning" variant="tonal">
-                        <v-card-text>
-                          <div class="text-h6">项目数量</div>
-                          <div class="text-h4">{{ userStats.totalProjects }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="6" lg="3">
-                      <v-card color="info" variant="tonal">
-                        <v-card-text>
-                          <div class="text-h6">完成任务</div>
-                          <div class="text-h4">{{ userStats.completedTasks }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          
-          <v-row class="mt-4">
-            <v-col cols="12" lg="8">
-              <v-card>
-                <v-card-title>
-                  <v-icon class="me-2">mdi-chart-line</v-icon>
-                  数据趋势
-                </v-card-title>
-                <v-card-text>
-                  <v-sheet
-                    border="dashed md"
-                    color="surface-light"
-                    height="300"
-                    rounded="lg"
-                    width="100%"
-                    class="d-flex align-center justify-center"
-                  >
-                    <div class="text-center">
-                      <v-icon size="64" color="grey-lighten-1">mdi-chart-line</v-icon>
-                      <div class="text-h6 mt-2 text-grey-lighten-1">图表区域</div>
-                    </div>
-                  </v-sheet>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            
-            <v-col cols="12" lg="4">
-              <v-card>
-                <v-card-title>
-                  <v-icon class="me-2">mdi-bell-outline</v-icon>
-                  最新通知
-                </v-card-title>
-                <v-card-text>
-                  <v-list>
-                    <v-list-item
-                      v-for="notification in notifications"
-                      :key="notification.id"
-                      :prepend-icon="notification.icon"
-                      :title="notification.title"
-                      :subtitle="notification.time"
-                    />
-                  </v-list>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-    </v-main>
-  </v-layout>
-</template>
-
-<script setup lang="ts">
+<!--
 /**
- * 主页面的组合式 API 逻辑
+ * @fileoverview 主页面组件
+ * @description 应用的主页面，包含导航抽屉、应用栏和主内容区域
+ * @author 开发团队 <dev@example.com>
+ * @created 2024-01-20
+ * @updated 2024-01-20
+ * @version 1.0.0
+ */
+-->
+
+<template> 
+   <v-layout> 
+     <v-navigation-drawer v-model="drawer" class="jelly-drawer"> 
+       <div class="pa-3">
+         <v-card 
+           v-for="item in items" 
+           :key="item.title"
+           class="jelly-card nav-card mb-2" 
+           variant="tonal"
+           @click="handleNavClick(item.title)"
+         >
+           <v-card-text class="pa-3">
+             <div class="d-flex align-center">
+               <v-icon :icon="item.prependIcon" class="me-3" size="20" />
+               <span class="text-body-2 font-weight-medium">{{ item.title }}</span>
+             </div>
+           </v-card-text>
+         </v-card>
+       </div>
+
+       <template #append> 
+         <div class="pa-3">
+           <v-card 
+             class="jelly-card settings-card" 
+             variant="tonal"
+             @click="handleNavClick('Settings')"
+           >
+             <v-card-text class="pa-3">
+               <div class="d-flex align-center">
+                 <v-icon icon="mdi-cog-outline" class="me-3" size="20" />
+                 <span class="text-body-2 font-weight-medium">Settings</span>
+               </div>
+             </v-card-text>
+           </v-card>
+         </div>
+       </template> 
+     </v-navigation-drawer> 
+
+    <v-app-bar border="b" class="ps-4 jelly-app-bar" flat> 
+       <v-app-bar-nav-icon v-if="$vuetify.display.smAndDown" @click="drawer = !drawer" /> 
+
+       <v-app-bar-title>Application</v-app-bar-title> 
+
+       <template #append> 
+         <v-card class="jelly-card user-card" variant="flat" @click="handleUserMenuClick">
+           <v-card-text class="pa-2">
+             <v-btn class="text-none" height="48" icon slim> 
+               <v-avatar color="surface-light" image="https://cdn.vuetifyjs.com/images/john.png" size="32" /> 
+
+               <v-menu activator="parent"> 
+                 <v-card class="jelly-card menu-card">
+                   <v-list density="compact" nav> 
+                     <v-list-item 
+                       class="jelly-list-item"
+                       append-icon="mdi-cog-outline" 
+                       link 
+                       title="Settings" 
+                       @click="handleNavClick('Settings')"
+                     /> 
+
+                     <!-- 根据登录状态显示不同按钮 -->
+                     <v-list-item 
+                       v-if="isLoggedIn"
+                       class="jelly-list-item"
+                       append-icon="mdi-logout" 
+                       link 
+                       title="退出登录" 
+                       @click="handleLogout"
+                     />
+                     
+                     <v-list-item 
+                       v-else
+                       class="jelly-list-item"
+                       append-icon="mdi-login" 
+                       link 
+                       title="登录" 
+                       @click="handleLogin"
+                     /> 
+                   </v-list> 
+                 </v-card>
+               </v-menu> 
+             </v-btn> 
+           </v-card-text>
+         </v-card>
+       </template> 
+     </v-app-bar> 
+
+    <v-main class="jelly-main"> 
+       <div class="pa-4"> 
+         <v-card 
+           class="jelly-card main-content-card" 
+           border="dashed md" 
+           color="surface-light" 
+           height="500" 
+           rounded="lg" 
+           width="100%" 
+           @click="handleMainContentClick"
+         >
+           <v-card-text class="d-flex align-center justify-center h-100">
+             <div class="text-center">
+               <v-icon size="64" color="primary" class="mb-4">mdi-view-dashboard</v-icon>
+               <div class="text-h5 mb-2">主内容区域</div>
+               <div class="text-body-1 text-medium-emphasis mb-4">点击这里开始您的工作</div>
+               
+               <!-- 登录状态检查按钮 -->
+               <v-btn 
+                 class="jelly-card login-status-btn"
+                 color="primary"
+                 variant="elevated"
+                 size="large"
+                 prepend-icon="mdi-shield-check"
+                 :loading="isCheckingStatus"
+                 @click="checkLoginStatus"
+               >
+                 检查登录状态
+               </v-btn>
+               
+               <!-- 状态显示 -->
+               <div v-if="loginStatusMessage" class="mt-4">
+                 <v-alert 
+                   :type="loginStatusType"
+                   :text="loginStatusMessage"
+                   variant="tonal"
+                   class="jelly-card"
+                 />
+               </div>
+             </div>
+           </v-card-text>
+         </v-card>
+       </div> 
+     </v-main> 
+  </v-layout> 
+</template> 
+
+<script setup>
+/**
+ * 主页面组件的组合式 API 逻辑
  * 
- * @description 处理主页面的抽屉布局、导航和数据展示
+ * @description 处理主页面的抽屉布局和导航
  */
 
-// 导入Vue Router
-import { useRouter } from 'vue-router';
-import { authService } from '@/services';
-
-// 获取路由实例
-const router = useRouter();
-
-/**
- * 导航项接口
- */
-interface NavigationItem {
-  /** 标题 */
-  title: string;
-  /** 前置图标 */
-  prependIcon: string;
-  /** 是否为链接 */
-  link: boolean;
-  /** 路由路径 */
-  to?: string;
-}
-
-/**
- * 用户统计数据接口
- */
-interface UserStats {
-  /** 用户总数 */
-  totalUsers: number;
-  /** 活跃用户数 */
-  activeUsers: number;
-  /** 项目总数 */
-  totalProjects: number;
-  /** 完成任务数 */
-  completedTasks: number;
-}
-
-/**
- * 通知接口
- */
-interface Notification {
-  /** 通知ID */
-  id: number;
-  /** 通知标题 */
-  title: string;
-  /** 通知时间 */
-  time: string;
-  /** 通知图标 */
-  icon: string;
-}
-
-/**
- * 页面标题
- */
-const pageTitle = ref('管理系统');
+import { ref, onMounted } from 'vue' 
 
 /**
  * 抽屉状态
+ * 
+ * @description 控制导航抽屉的显示/隐藏状态
  */
-const drawer = ref(true);
+const drawer = ref(true)
+
+/**
+ * 登录状态检查相关状态
+ */
+const isCheckingStatus = ref(false)
+const loginStatusMessage = ref('')
+const loginStatusType = ref('info')
+const isLoggedIn = ref(false) 
 
 /**
  * 导航菜单项
- */
-const items = ref<NavigationItem[]>([
-  {
-    title: '仪表板',
-    prependIcon: 'mdi-view-dashboard-outline',
-    link: true,
-    to: '/'
-  },
-  {
-    title: '团队管理',
-    prependIcon: 'mdi-account-group',
-    link: true,
-    to: '/team'
-  },
-  {
-    title: '项目管理',
-    prependIcon: 'mdi-briefcase-outline',
-    link: true,
-    to: '/projects'
-  },
-  {
-    title: '日历',
-    prependIcon: 'mdi-calendar',
-    link: true,
-    to: '/calendar'
-  },
-  {
-    title: '报告',
-    prependIcon: 'mdi-file-chart-outline',
-    link: true,
-    to: '/reports'
-  },
-]);
-
-/**
- * 用户统计数据
- */
-const userStats = ref<UserStats>({
-  totalUsers: 1234,
-  activeUsers: 856,
-  totalProjects: 42,
-  completedTasks: 128
-});
-
-/**
- * 通知列表
- */
-const notifications = ref<Notification[]>([
-  {
-    id: 1,
-    title: '新用户注册',
-    time: '2分钟前',
-    icon: 'mdi-account-plus'
-  },
-  {
-    id: 2,
-    title: '项目更新',
-    time: '15分钟前',
-    icon: 'mdi-update'
-  },
-  {
-    id: 3,
-    title: '系统维护通知',
-    time: '1小时前',
-    icon: 'mdi-wrench'
-  }
-]);
-
-/**
- * 导航到指定路径
  * 
- * @param path - 目标路径
+ * @description 定义侧边导航栏的菜单项
  */
-const navigateTo = (path: string) => {
-  router.push(path);
-};
+const items = ref([ 
+  { 
+    title: 'Dashboard', 
+    prependIcon: 'mdi-view-dashboard-outline', 
+    link: true, 
+  }, 
+  { 
+    title: 'Team', 
+    prependIcon: 'mdi-account-group', 
+    link: true, 
+  }, 
+  { 
+    title: 'Projects', 
+    prependIcon: 'mdi-briefcase-outline', 
+    link: true, 
+  }, 
+  { 
+    title: 'Calendar', 
+    prependIcon: 'mdi-calendar', 
+    link: true, 
+  }, 
+  { 
+    title: 'Reports', 
+    prependIcon: 'mdi-file-chart-outline', 
+    link: true, 
+  }, 
+]) 
 
 /**
- * 处理退出登录
- */
-const handleLogout = () => {
-  authService.logout();
-  router.push('/login');
-};
+   * 处理导航点击事件
+   * 
+   * @param itemTitle - 导航项标题
+   */
+  const handleNavClick = (itemTitle) => {
+    console.log(`点击了导航项: ${itemTitle}`);
+    // 这里可以添加路由跳转逻辑
+  };
+
+ /**
+  * 处理用户菜单点击事件
+  */
+ const handleUserMenuClick = () => {
+   console.log('点击了用户菜单');
+ };
+
+ /**
+  * 处理退出登录
+  */
+ const handleLogout = async () => {
+   console.log('用户退出登录');
+   
+   try {
+     // 从localStorage获取JWT令牌
+     const token = localStorage.getItem('token');
+     
+     if (!token) {
+       loginStatusMessage.value = '未找到登录令牌';
+       loginStatusType.value = 'warning';
+       return;
+     }
+     
+     // 调用后端登出接口
+     const response = await fetch('/api/auth/logout', {
+       method: 'POST',
+       headers: {
+         'Authorization': `Bearer ${token}`,
+         'Content-Type': 'application/json'
+       }
+     });
+     
+     const result = await response.json();
+     
+     if (result.code === 200) {
+       // 登出成功，清除本地令牌
+       localStorage.removeItem('token');
+       isLoggedIn.value = false;
+       loginStatusMessage.value = '已成功退出登录';
+       loginStatusType.value = 'success';
+     } else {
+       // 登出失败，但仍然清除本地令牌（防止令牌泄露）
+       localStorage.removeItem('token');
+       isLoggedIn.value = false;
+       loginStatusMessage.value = `退出登录失败: ${result.message}`;
+       loginStatusType.value = 'warning';
+     }
+   } catch (error) {
+     console.error('退出登录时发生错误:', error);
+     // 即使网络错误，也要清除本地令牌
+     localStorage.removeItem('token');
+     isLoggedIn.value = false;
+     loginStatusMessage.value = '网络错误，但已清除本地登录状态';
+     loginStatusType.value = 'warning';
+   }
+ };
+
+ /**
+  * 处理登录
+  */
+ const handleLogin = () => {
+   console.log('跳转到登录页面');
+   // 这里可以添加跳转到登录页面的逻辑
+   // 例如: router.push('/login')
+ };
+
+ /**
+  * 处理主内容区域点击事件
+  */
+ const handleMainContentClick = () => {
+   console.log('点击了主内容区域');
+   // 这里可以添加主内容交互逻辑
+ };
+
+ /**
+  * 检查登录状态
+  * 
+  * @description 调用API验证JWT令牌的有效性
+  */
+ const checkLoginStatus = async () => {
+   isCheckingStatus.value = true;
+   loginStatusMessage.value = '';
+   
+   try {
+     // 从localStorage获取JWT令牌
+     const token = localStorage.getItem('token');
+     
+     if (!token) {
+       loginStatusMessage.value = '未找到登录令牌，请先登录';
+       loginStatusType.value = 'warning';
+       return;
+     }
+     
+     // 调用API验证令牌
+     const response = await fetch('/api/auth/validate-token', {
+       method: 'GET',
+       headers: {
+         'Authorization': `Bearer ${token}`,
+         'Content-Type': 'application/json'
+       }
+     });
+     
+     const result = await response.json();
+     
+     if (result.code === 200) {
+       loginStatusMessage.value = '登录状态有效，令牌正常';
+       loginStatusType.value = 'success';
+       isLoggedIn.value = true;
+     } else if (result.code === 401) {
+       loginStatusMessage.value = result.message || '令牌无效或已过期';
+       loginStatusType.value = 'error';
+       // 清除无效令牌
+       localStorage.removeItem('token');
+       isLoggedIn.value = false;
+     } else {
+       loginStatusMessage.value = `验证失败: ${result.message}`;
+       loginStatusType.value = 'error';
+       isLoggedIn.value = false;
+     }
+   } catch (error) {
+     console.error('检查登录状态时发生错误:', error);
+     loginStatusMessage.value = '网络错误，无法连接到服务器';
+     loginStatusType.value = 'error';
+   } finally {
+      isCheckingStatus.value = false;
+    }
+  };
+
+ /**
+  * 检查用户登录状态
+  */
+ const checkUserLoginStatus = () => {
+   const token = localStorage.getItem('token');
+   isLoggedIn.value = !!token;
+ };
+
+ /**
+  * 组件挂载时的初始化
+  */
+ onMounted(() => {
+   console.log('主页面组件已挂载');
+   // 检查初始登录状态
+   checkUserLoginStatus();
+ });
 </script>
 
 <style scoped>
-/* 自定义样式 */
-.v-navigation-drawer {
-  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
+/**
+ * 主页面样式
+ * 
+ * @description 定义主页面组件的样式
+ */
 
-.v-app-bar {
-  backdrop-filter: blur(10px);
-}
+/* 果冻效果基础样式 */
+ .jelly-card {
+   cursor: pointer;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   transform-origin: center;
+   border-radius: 12px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ }
+
+ .jelly-card:hover {
+   transform: scale(1.05) translateY(-2px);
+   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+   border-color: rgba(var(--v-theme-primary), 0.3);
+ }
+
+ .jelly-card:active {
+   transform: scale(0.95);
+   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+
+ /* 导航抽屉样式 */
+ .jelly-drawer {
+   border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+   background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-surface-light), 1) 100%);
+ }
+
+ /* 导航卡片样式 */
+ .nav-card {
+   background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-primary), 0.04) 100%);
+   border: 1px solid rgba(var(--v-theme-primary), 0.12);
+ }
+
+ .nav-card:hover {
+   background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.15) 0%, rgba(var(--v-theme-primary), 0.08) 100%);
+   border-color: rgba(var(--v-theme-primary), 0.3);
+ }
+
+ /* 设置卡片样式 */
+ .settings-card {
+   background: linear-gradient(135deg, rgba(var(--v-theme-secondary), 0.08) 0%, rgba(var(--v-theme-secondary), 0.04) 100%);
+   border: 1px solid rgba(var(--v-theme-secondary), 0.12);
+ }
+
+ .settings-card:hover {
+   background: linear-gradient(135deg, rgba(var(--v-theme-secondary), 0.15) 0%, rgba(var(--v-theme-secondary), 0.08) 100%);
+   border-color: rgba(var(--v-theme-secondary), 0.3);
+ }
+
+ /* 应用栏样式 */
+ .jelly-app-bar {
+   backdrop-filter: blur(10px);
+   background: linear-gradient(90deg, rgba(var(--v-theme-surface), 0.95) 0%, rgba(var(--v-theme-surface-light), 0.95) 100%);
+ }
+
+ /* 用户卡片样式 */
+ .user-card {
+   background: transparent;
+   box-shadow: none;
+ }
+
+ .user-card:hover {
+   background: rgba(var(--v-theme-primary), 0.08);
+   transform: scale(1.02);
+ }
+
+ /* 菜单卡片样式 */
+ .menu-card {
+   border-radius: 8px;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+ }
+
+ /* 列表项果冻效果 */
+ .jelly-list-item {
+   transition: all 0.2s ease;
+   border-radius: 8px;
+   margin: 2px 4px;
+ }
+
+ .jelly-list-item:hover {
+   background-color: rgba(var(--v-theme-primary), 0.1);
+   transform: translateX(4px) scale(1.02);
+ }
+
+ /* 主内容区域样式 */
+ .jelly-main {
+   background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-surface-light), 1) 100%);
+ }
+
+ /* 主内容卡片样式 */
+ .main-content-card {
+   background: linear-gradient(135deg, rgba(var(--v-theme-surface-light), 1) 0%, rgba(var(--v-theme-surface), 1) 100%);
+   border: 2px dashed rgba(var(--v-theme-primary), 0.3);
+ }
+
+ .main-content-card:hover {
+   border-color: rgba(var(--v-theme-primary), 0.6);
+   background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.05) 0%, rgba(var(--v-theme-surface-light), 1) 100%);
+ }
+
+ /* 内容区域样式 */
+ .pa-4 {
+   min-height: calc(100vh - 64px);
+ }
+
+ /* 登录状态按钮样式 */
+ .login-status-btn {
+   border-radius: 12px;
+   font-weight: 600;
+   letter-spacing: 0.5px;
+   box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.3);
+ }
+ 
+ .login-status-btn:hover {
+   transform: scale(1.05) translateY(-2px);
+   box-shadow: 0 8px 20px rgba(var(--v-theme-primary), 0.4);
+ }
+ 
+ .login-status-btn:active {
+   transform: scale(0.98);
+ }
+
+ /* 响应式设计 */
+ @media (max-width: 600px) {
+   .jelly-card:hover {
+     transform: scale(1.02) translateY(-1px);
+   }
+   
+   .jelly-list-item:hover {
+     transform: translateX(2px) scale(1.01);
+   }
+   
+   .login-status-btn:hover {
+     transform: scale(1.02) translateY(-1px);
+   }
+ }
 </style>

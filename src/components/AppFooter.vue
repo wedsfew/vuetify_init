@@ -17,26 +17,7 @@
         <v-col cols="12" class="text-center">
           <!-- 版权信息 -->
           <div class="footer-content">
-            <p class="footer-text">
-              &copy; {{ currentYear }} Vue3 + Vuetify 项目
-              <span class="separator">|</span>
-              基于 Vue 3 + Vuetify 3.x + TypeScript 构建
-            </p>
-            
-            <!-- 技术栈信息 -->
-            <div class="tech-stack">
-              <v-chip
-                v-for="tech in techStack"
-                :key="tech.name"
-                size="small"
-                variant="outlined"
-                class="ma-1"
-                :color="tech.color"
-              >
-                <v-icon :icon="tech.icon" class="mr-1" size="16" />
-                {{ tech.name }}
-              </v-chip>
-            </div>
+           备案号：阿森松岛反覆
           </div>
         </v-col>
       </v-row>
@@ -52,62 +33,17 @@
  */
 
 /**
- * 技术栈信息接口
- * 
- * @description 定义技术栈项目的结构
- */
-interface TechStackItem {
-  /** 技术名称 */
-  name: string;
-  /** 图标名称 */
-  icon: string;
-  /** 颜色 */
-  color: string;
-}
-
-/**
  * 当前年份
  * 
  * @description 获取当前年份用于版权信息
  */
+import { computed } from 'vue';
 const currentYear = computed(() => new Date().getFullYear());
-
-/**
- * 技术栈列表
- * 
- * @description 项目使用的主要技术栈
- */
-const techStack = ref<TechStackItem[]>([
-  {
-    name: 'Vue 3',
-    icon: 'mdi-vuejs',
-    color: 'green'
-  },
-  {
-    name: 'Vuetify',
-    icon: 'mdi-vuetify',
-    color: 'blue'
-  },
-  {
-    name: 'TypeScript',
-    icon: 'mdi-language-typescript',
-    color: 'blue-darken-2'
-  },
-  {
-    name: 'Vite',
-    icon: 'mdi-lightning-bolt',
-    color: 'yellow-darken-2'
-  },
-  {
-    name: 'Pinia',
-    icon: 'mdi-store',
-    color: 'orange'
-  }
-]);
 
 /**
  * 组件挂载时的初始化
  */
+import { onMounted } from 'vue';
 onMounted(() => {
   console.log('AppFooter 组件已挂载');
 });
@@ -120,24 +56,38 @@ onMounted(() => {
  * @description 定义底部组件的样式
  */
 
-/* 底部容器 */
-.app-footer {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  margin-top: auto;
+/**
+ * 底部容器样式
+ * 包含渐变背景、边框和固定高度设置
+ */
+  .app-footer {
+    /* 设置渐变背   景色,从浅灰色过渡到深灰色 */
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    /* 顶部添加分隔线 */
+    border-top: 0px solid rgba(0, 0, 0, 0.12);
+    /* 自动设置顶部外边距,使footer保持在底部 */
+    margin-top: auto;
+    /* 固定高度为30px,使用!important确保样式优先级 */
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
 }
 
 /* 底部内容 */
 .footer-content {
-  padding: 16px 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 底部文字 */
 .footer-text {
   color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
+  font-size: 13px;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
 }
 
 /* 分隔符 */
@@ -146,13 +96,7 @@ onMounted(() => {
   color: rgba(0, 0, 0, 0.3);
 }
 
-/* 技术栈容器 */
-.tech-stack {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-}
+
 
 /* 响应式设计 */
 @media (max-width: 600px) {
@@ -163,10 +107,6 @@ onMounted(() => {
   .separator {
     display: block;
     margin: 4px 0;
-  }
-  
-  .tech-stack {
-    margin-top: 8px;
   }
 }
 

@@ -385,7 +385,7 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 .login-page {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: #FFFFFF;
   overflow: hidden;
 }
 
@@ -497,14 +497,12 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 
 /* 登录卡片 */
 .login-card {
-  background: rgba(240, 248, 255, 0.12) !important;
-  backdrop-filter: blur(25px);
-  border: 2px solid rgba(100, 200, 255, 0.25);
+  background: #FFFFFF !important;
+  border: 1px solid #E0E0E0;
   border-radius: 24px !important;
   box-shadow: 
-    0 20px 60px rgba(100, 200, 255, 0.15),
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1) !important;
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.04) !important;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   max-width: 380px;
   width: 100%;
@@ -513,11 +511,11 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .login-card:hover {
-  border-color: rgba(100, 200, 255, 0.45);
+  border-color: rgba(25, 118, 210, 0.3);
   transform: translateY(-8px) scale(1.02);
   box-shadow: 
-    0 30px 80px rgba(100, 200, 255, 0.25),
-    0 15px 50px rgba(0, 0, 0, 0.15),
+    0 16px 48px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
     inset 0 2px 8px rgba(255, 255, 255, 0.15);
 }
 
@@ -525,7 +523,7 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 .login-header {
   padding: 28px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+  border-bottom: 1px solid #E0E0E0;
 }
 
 .header-content {
