@@ -1,245 +1,311 @@
-<!--
-/**
- * @fileoverview 应用主页面
- * @description 展示应用的主要功能和测试组件，验证代码注释规范
- * @author 开发团队 <dev@example.com>
- * @created 2024-01-20
- * @updated 2024-01-20
- * @version 1.0.0
- */
--->
-
 <template>
-  <!-- 主页面容器 -->
-  <div class="home-page">
-    <!-- 欢迎区域 -->
-    <v-container>
-      <v-row>
-        <v-col>
-          <v-card class="pa-6 mb-4">
-            <v-card-title class="text-h4 text-center">
-              <v-icon icon="mdi-vuetify" class="mr-2" color="primary" />
-              Vue3 + Vuetify 项目
-            </v-card-title>
-            <v-card-subtitle class="text-center">
-              代码注释规范测试页面
-            </v-card-subtitle>
-            <v-card-text class="text-center">
-               <p>这是一个基于 Vue 3 + Vuetify 3.x + TypeScript 的项目示例</p>
-               <p>展示了完整的代码注释规范和最佳实践</p>
-             </v-card-text>
-             <v-card-actions class="justify-center">
-               <v-btn
-                 color="primary"
-                 variant="outlined"
-                 prepend-icon="mdi-login"
-                 @click="navigateToLogin"
-                 class="mr-2"
-               >
-                 查看登录界面
-               </v-btn>
-               <v-btn
-                 color="success"
-                 variant="outlined"
-                 prepend-icon="mdi-api"
-                 @click="navigateToApiTest"
-               >
-                 API 测试页面
-               </v-btn>
-             </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-    
-    <!-- 测试注释规范组件 -->
-    <TestCommentComponent
-      :title="pageTitle"
-      :users="mockUsers"
-      @user-selected="handleUserSelected"
-      @refresh="handleRefresh"
-    />
-  </div>
+  <v-layout>
+    <v-navigation-drawer v-model="drawer">
+      <v-list density="compact" item-props :items="items" nav />
+
+      <template #append>
+        <v-list-item
+          class="ma-2"
+          link
+          nav
+          prepend-icon="mdi-cog-outline"
+          title="设置"
+          @click="navigateTo('/settings')"
+        />
+      </template>
+    </v-navigation-drawer>
+
+    <v-app-bar border="b" class="ps-4" flat>
+      <v-app-bar-nav-icon v-if="$vuetify.display.smAndDown" @click="drawer = !drawer" />
+
+      <v-app-bar-title>{{ pageTitle }}</v-app-bar-title>
+
+      <template #append>
+        <v-btn class="text-none me-2" height="48" icon slim>
+          <v-avatar color="surface-light" image="https://cdn.vuetifyjs.com/images/john.png" size="32" />
+
+          <v-menu activator="parent">
+            <v-list density="compact" nav>
+              <v-list-item 
+                append-icon="mdi-cog-outline" 
+                link 
+                title="设置" 
+                @click="navigateTo('/settings')"
+              />
+              <v-list-item 
+                append-icon="mdi-logout" 
+                link 
+                title="退出登录" 
+                @click="handleLogout"
+              />
+            </v-list>
+          </v-menu>
+        </v-btn>
+      </template>
+    </v-app-bar>
+
+    <v-main>
+      <div class="pa-4">
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>
+                  <v-icon class="me-2">mdi-view-dashboard-outline</v-icon>
+                  仪表板
+                </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col cols="12" md="6" lg="3">
+                      <v-card color="primary" variant="tonal">
+                        <v-card-text>
+                          <div class="text-h6">用户总数</div>
+                          <div class="text-h4">{{ userStats.totalUsers }}</div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <v-card color="success" variant="tonal">
+                        <v-card-text>
+                          <div class="text-h6">活跃用户</div>
+                          <div class="text-h4">{{ userStats.activeUsers }}</div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <v-card color="warning" variant="tonal">
+                        <v-card-text>
+                          <div class="text-h6">项目数量</div>
+                          <div class="text-h4">{{ userStats.totalProjects }}</div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6" lg="3">
+                      <v-card color="info" variant="tonal">
+                        <v-card-text>
+                          <div class="text-h6">完成任务</div>
+                          <div class="text-h4">{{ userStats.completedTasks }}</div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          
+          <v-row class="mt-4">
+            <v-col cols="12" lg="8">
+              <v-card>
+                <v-card-title>
+                  <v-icon class="me-2">mdi-chart-line</v-icon>
+                  数据趋势
+                </v-card-title>
+                <v-card-text>
+                  <v-sheet
+                    border="dashed md"
+                    color="surface-light"
+                    height="300"
+                    rounded="lg"
+                    width="100%"
+                    class="d-flex align-center justify-center"
+                  >
+                    <div class="text-center">
+                      <v-icon size="64" color="grey-lighten-1">mdi-chart-line</v-icon>
+                      <div class="text-h6 mt-2 text-grey-lighten-1">图表区域</div>
+                    </div>
+                  </v-sheet>
+                </v-card-text>
+              </v-card>
+            </v-col>
+            
+            <v-col cols="12" lg="4">
+              <v-card>
+                <v-card-title>
+                  <v-icon class="me-2">mdi-bell-outline</v-icon>
+                  最新通知
+                </v-card-title>
+                <v-card-text>
+                  <v-list>
+                    <v-list-item
+                      v-for="notification in notifications"
+                      :key="notification.id"
+                      :prepend-icon="notification.icon"
+                      :title="notification.title"
+                      :subtitle="notification.time"
+                    />
+                  </v-list>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </div>
+    </v-main>
+  </v-layout>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 /**
  * 主页面的组合式 API 逻辑
  * 
- * @description 处理主页面的数据管理和事件处理
+ * @description 处理主页面的抽屉布局、导航和数据展示
  */
 
 // 导入Vue Router
 import { useRouter } from 'vue-router';
+import { authService } from '@/services';
 
 // 获取路由实例
 const router = useRouter();
 
 /**
- * 用户信息接口
- * 
- * @description 定义用户的基本信息结构
+ * 导航项接口
  */
-interface User {
-  /** 用户唯一标识符 */
-  id: string;
-  /** 用户名 */
-  username: string;
-  /** 用户邮箱 */
-  email: string;
-  /** 用户头像 URL */
-  avatar?: string;
-  /** 用户角色列表 */
-  roles: UserRole[];
-  /** 创建时间 */
-  createdAt: Date;
+interface NavigationItem {
+  /** 标题 */
+  title: string;
+  /** 前置图标 */
+  prependIcon: string;
+  /** 是否为链接 */
+  link: boolean;
+  /** 路由路径 */
+  to?: string;
 }
 
 /**
- * 用户角色枚举
- * 
- * @description 定义系统中的用户角色类型
+ * 用户统计数据接口
  */
-enum UserRole {
-  /** 管理员 */
-  ADMIN = 'admin',
-  /** 普通用户 */
-  USER = 'user',
-  /** 访客 */
-  GUEST = 'guest'
+interface UserStats {
+  /** 用户总数 */
+  totalUsers: number;
+  /** 活跃用户数 */
+  activeUsers: number;
+  /** 项目总数 */
+  totalProjects: number;
+  /** 完成任务数 */
+  completedTasks: number;
+}
+
+/**
+ * 通知接口
+ */
+interface Notification {
+  /** 通知ID */
+  id: number;
+  /** 通知标题 */
+  title: string;
+  /** 通知时间 */
+  time: string;
+  /** 通知图标 */
+  icon: string;
 }
 
 /**
  * 页面标题
  */
-const pageTitle = ref('注释规范测试');
+const pageTitle = ref('管理系统');
 
 /**
- * 模拟用户数据
- * 
- * @description 用于测试组件功能的模拟用户数据
+ * 抽屉状态
  */
-const mockUsers = ref<User[]>([
+const drawer = ref(true);
+
+/**
+ * 导航菜单项
+ */
+const items = ref<NavigationItem[]>([
   {
-    id: '1',
-    username: '张三',
-    email: 'zhangsan@example.com',
-    avatar: 'https://cdn.vuetifyjs.com/images/john.jpg',
-    roles: [UserRole.ADMIN],
-    createdAt: new Date('2024-01-15')
+    title: '仪表板',
+    prependIcon: 'mdi-view-dashboard-outline',
+    link: true,
+    to: '/'
   },
   {
-    id: '2',
-    username: '李四',
-    email: 'lisi@example.com',
-    roles: [UserRole.USER],
-    createdAt: new Date('2024-01-16')
+    title: '团队管理',
+    prependIcon: 'mdi-account-group',
+    link: true,
+    to: '/team'
   },
   {
-    id: '3',
-    username: '王五',
-    email: 'wangwu@example.com',
-    roles: [UserRole.GUEST],
-    createdAt: new Date('2024-01-17')
+    title: '项目管理',
+    prependIcon: 'mdi-briefcase-outline',
+    link: true,
+    to: '/projects'
   },
   {
-    id: '4',
-    username: '赵六',
-    email: 'zhaoliu@example.com',
-    roles: [UserRole.USER, UserRole.ADMIN],
-    createdAt: new Date('2024-01-18')
+    title: '日历',
+    prependIcon: 'mdi-calendar',
+    link: true,
+    to: '/calendar'
+  },
+  {
+    title: '报告',
+    prependIcon: 'mdi-file-chart-outline',
+    link: true,
+    to: '/reports'
+  },
+]);
+
+/**
+ * 用户统计数据
+ */
+const userStats = ref<UserStats>({
+  totalUsers: 1234,
+  activeUsers: 856,
+  totalProjects: 42,
+  completedTasks: 128
+});
+
+/**
+ * 通知列表
+ */
+const notifications = ref<Notification[]>([
+  {
+    id: 1,
+    title: '新用户注册',
+    time: '2分钟前',
+    icon: 'mdi-account-plus'
+  },
+  {
+    id: 2,
+    title: '项目更新',
+    time: '15分钟前',
+    icon: 'mdi-update'
+  },
+  {
+    id: 3,
+    title: '系统维护通知',
+    time: '1小时前',
+    icon: 'mdi-wrench'
   }
 ]);
 
 /**
- * 处理用户选择事件
+ * 导航到指定路径
  * 
- * @description 当用户在测试组件中选择用户时触发
- * @param user - 被选择的用户对象
+ * @param path - 目标路径
  */
-const handleUserSelected = (user: User): void => {
-  console.log('用户被选择:', user);
-  
-  // 显示用户信息的提示
-  const message = `选择了用户: ${user.username} (${user.email})`;
-  console.log(message);
-  
-  // 这里可以添加更多的业务逻辑
-  // 例如：跳转到用户详情页面、打开编辑对话框等
+const navigateTo = (path: string) => {
+  router.push(path);
 };
 
 /**
- * 处理刷新事件
- * 
- * @description 当用户点击刷新按钮时触发
+ * 处理退出登录
  */
-const handleRefresh = (): void => {
-  console.log('刷新数据');
-  
-  // 模拟数据刷新
-  const refreshedUser: User = {
-    id: `refresh_${Date.now()}`,
-    username: `刷新用户_${new Date().getSeconds()}`,
-    email: `refresh${Date.now()}@example.com`,
-    roles: [UserRole.USER],
-    createdAt: new Date()
-  };
-  
-  // 添加新用户到列表
-  mockUsers.value.push(refreshedUser);
-  
-  console.log('数据刷新完成，新增用户:', refreshedUser);
-};
-
-/**
- * 导航到登录页面
- * 
- * @description 跳转到登录界面进行测试
- */
-const navigateToLogin = (): void => {
-  // 使用Vue Router编程式导航跳转到登录页面
+const handleLogout = () => {
+  authService.logout();
   router.push('/login');
 };
-
-/**
- * 导航到API测试页面
- * 
- * @description 跳转到API测试页面进行全局请求拦截器测试
- */
-const navigateToApiTest = (): void => {
-  // 使用Vue Router编程式导航跳转到API测试页面
-  router.push('/ApiTest');
-};
-
-/**
- * 组件挂载时的初始化操作
- */
-onMounted(() => {
-  console.log('主页面已挂载');
-  console.log('当前用户数量:', mockUsers.value.length);
-});
 </script>
 
 <style scoped>
-/**
- * 主页面样式
- * 
- * @description 定义主页面的局部样式
- */
-
-/* 页面容器 */
-.home-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
+/* 自定义样式 */
+.v-navigation-drawer {
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
-/* 卡片阴影效果 */
-.v-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-.v-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+.v-app-bar {
+  backdrop-filter: blur(10px);
 }
 </style>

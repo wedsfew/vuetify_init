@@ -25,6 +25,8 @@ export interface LoginResponse {
   username: string;
   /** 用户邮箱 */
   email: string;
+  /** 用户角色 */
+  role: string;
   /** JWT令牌 */
   token: string;
 }

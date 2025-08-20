@@ -38,6 +38,7 @@ describe('登录API接口测试', () => {
       id: 1,
       username: 'testuser',
       email: '12345678@example.com',
+      role: 'user',
       token: 'mock-jwt-token-123456789'
     }
 
@@ -62,11 +63,12 @@ describe('登录API接口测试', () => {
     expect(result.token).toBe('mock-jwt-token-123456789')
 
     // 验证localStorage存储
-    expect(localStorage.getItem('authToken')).toBe('mock-jwt-token-123456789')
-    expect(localStorage.getItem('userInfo')).toBe(JSON.stringify({
+    expect(localStorage.getItem('token')).toBe('mock-jwt-token-123456789')
+    expect(localStorage.getItem('user')).toBe(JSON.stringify({
       id: 1,
       username: 'testuser',
-      email: '12345678@example.com'
+      email: '12345678@example.com',
+      role: 'user'
     }))
   })
 
@@ -93,8 +95,8 @@ describe('登录API接口测试', () => {
     expect(http.post).toHaveBeenCalledTimes(1)
 
     // 验证localStorage没有存储任何信息
-    expect(localStorage.getItem('authToken')).toBeNull()
-    expect(localStorage.getItem('userInfo')).toBeNull()
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('user')).toBeNull()
   })
 
   it('应该处理网络错误', async () => {
@@ -116,8 +118,8 @@ describe('登录API接口测试', () => {
     expect(http.post).toHaveBeenCalledTimes(1)
 
     // 验证localStorage没有存储任何信息
-    expect(localStorage.getItem('authToken')).toBeNull()
-    expect(localStorage.getItem('userInfo')).toBeNull()
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('user')).toBeNull()
   })
 
   it('应该验证请求参数格式', () => {

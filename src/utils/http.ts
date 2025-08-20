@@ -122,11 +122,19 @@ class HttpClient {
               errorMessage = data?.message || '请求参数错误，请检查输入'
               break
             case 401:
-              errorMessage = data?.message || '未授权，请重新登录'
+              errorMessage = data?.message || '登录已过期，请重新登录'
               // 清除本地token并跳转到登录页
               localStorage.removeItem('token')
               localStorage.removeItem('user')
-              // 可以在这里触发路由跳转到登录页
+              localStorage.removeItem('rememberedEmail')
+              
+              // 自动跳转到登录页面，保存当前路径用于登录后重定向
+              if (typeof window !== 'undefined') {
+                const currentPath = window.location.pathname + window.location.search
+                if (currentPath !== '/login') {
+                  window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
+                }
+              }
               break
             case 403:
               errorMessage = data?.message || '权限不足，无法访问该资源'

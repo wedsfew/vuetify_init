@@ -164,10 +164,11 @@
 // 导入认证服务和类型
 import { authService } from '@/services';
 import type { LoginFormData } from '@/types/auth';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 // 获取路由实例
 const router = useRouter();
+const route = useRoute();
 
 /**
  * 登录表单引用
@@ -306,7 +307,7 @@ const handleLogin = async (): Promise<void> => {
     
     // 延迟跳转，让用户看到成功提示
     setTimeout(async () => {
-      await router.push('/');
+      handleRedirectAfterLogin();
     }, 1500);
     
   } catch (error: any) {
@@ -346,18 +347,20 @@ const handleForgotPassword = (): void => {
 };
 
 /**
- * 组件挂载时的初始化
+ * 处理登录成功后的重定向
+ * 
+ * @description 根据路由参数重定向到目标页面或默认首页
  */
-onMounted(() => {
-  console.log('登录页面已加载');
-  
-  // 检查是否有记住的登录信息
-  const rememberedEmail = localStorage.getItem('rememberedEmail');
-  if (rememberedEmail) {
-    loginData.value.email = rememberedEmail;
-    loginData.value.rememberMe = true;
+const handleRedirectAfterLogin = async (): Promise<void> => {
+  const redirectPath = route.query.redirect as string;
+  if (redirectPath && redirectPath !== '/login') {
+    console.log('重定向到原始页面:', redirectPath);
+    await router.push(redirectPath);
+  } else {
+    console.log('重定向到首页');
+    await router.push('/');
   }
-});
+};
 
 /**
  * 监听记住我状态变化

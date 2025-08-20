@@ -244,6 +244,71 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
+### 3.5 验证JWT令牌是否有效
+
+#### 基本信息
+
+- **接口标识**：`AUTH_VALIDATE_TOKEN`
+- **请求路径**：`GET /api/auth/validate-token`
+- **接口描述**：验证JWT令牌的有效性，包括是否过期和是否在黑名单中
+- **认证要求**：需要认证（需要JWT令牌）
+- **适用业务单元**：用户认证模块
+
+#### 请求头
+
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### 响应示例
+
+##### 令牌有效响应（状态码 200）
+
+```json
+{
+  "code": 200,
+  "message": "令牌有效",
+  "data": "OK",
+  "timestamp": "2025-08-20T19:01:46.000000000"
+}
+```
+
+##### 令牌无效或过期响应（状态码 401）
+
+```json
+{
+  "code": 401,
+  "message": "令牌无效或已过期",
+  "data": null,
+  "timestamp": "2025-08-20T19:01:46.000000000"
+}
+```
+
+##### 令牌已失效（已登出）响应（状态码 401）
+
+```json
+{
+  "code": 401,
+  "message": "令牌已失效（已登出）",
+  "data": null,
+  "timestamp": "2025-08-20T19:01:58.000000000"
+}
+```
+
+#### 调试说明
+
+- **测试用例 1（有效令牌）**：
+  - 前提：通过登录接口获取有效令牌
+  - 请求：`curl -X GET -H "Authorization: Bearer <有效JWT令牌>" http://localhost:8080/api/auth/validate-token`
+  - 预期响应：code=200，message="令牌有效"
+- **测试用例 2（无效或过期令牌）**：
+  - 请求：`curl -X GET -H "Authorization: Bearer <无效或过期JWT令牌>" http://localhost:8080/api/auth/validate-token`
+  - 预期响应：code=401，message="令牌无效或已过期"
+- **测试用例 3（已登出令牌）**：
+  - 前提：通过登录接口获取有效令牌，然后执行登出操作
+  - 请求：`curl -X GET -H "Authorization: Bearer <已登出JWT令牌>" http://localhost:8080/api/auth/validate-token`
+  - 预期响应：code=401，message="令牌已失效（已登出）"
+
 ## 四、管理员接口
 
 ### 4.1 管理员登录
@@ -995,6 +1060,7 @@ http://localhost:8080/api/test/success
 | v1.1.0 | 2025-08-20 | 添加JWT认证机制，包含用户认证接口、管理员接口                | CodeBuddy |
 | v1.2.0 | 2025-08-20 | 更新JWT令牌格式，令牌包含用户ID、邮箱和角色信息，全局标准化  | CodeBuddy |
 | v1.3.0 | 2025-08-20 | 添加API测试健康检查接口                                      | CodeBuddy |
+| v1.4.0 | 2025-08-20 | 添加验证JWT令牌有效性接口文档                                | CodeBuddy |
 
 ## 九、JWT令牌示例
 

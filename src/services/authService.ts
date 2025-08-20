@@ -9,6 +9,27 @@ import { http } from '@/utils/http';
 import type { LoginRequest, LoginResponse, ApiResponse } from '@/types/auth';
 
 /**
+ * JWT Token载荷接口
+ */
+interface JwtPayload {
+  sub: string; // 用户ID
+  email: string; // 用户邮箱
+  role: string; // 用户角色
+  iat: number; // 签发时间
+  exp: number; // 过期时间
+}
+
+/**
+ * 用户信息接口
+ */
+interface UserInfo {
+  id: number;
+  username: string;
+  email: string;
+  role?: string;
+}
+
+/**
  * 认证服务类
  * 
  * @description 封装所有认证相关的API请求方法
@@ -23,14 +44,24 @@ class AuthService {
     const response = await http.post<ApiResponse<LoginResponse>>('/api/auth/login', credentials);
     
     if (response.data) {
-      // 存储认证信息到localStorage（与http.ts中的token获取保持一致）
+      // 存储认证信息到localStorage
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify({
-        id: response.data.id,
-        username: response.data.username,
-        email: response.data.email
-      }));
       
+      // 从token中提取用户信息并存储
+      const userInfo = this.getUserInfoFromToken(response.data.token);
+      if (userInfo) {
+        localStorage.setItem('user', JSON.stringify(userInfo));
+      } else {
+        // 如果无法从token提取信息，使用响应中的用户信息
+        localStorage.setItem('user', JSON.stringify({
+          id: response.data.id,
+          username: response.data.username,
+          email: response.data.email,
+          role: response.data.role
+        }));
+      }
+      
+      console.log('登录成功，token有效期:', this.getTokenRemainingTime(), '秒');
       return response.data;
     }
     
@@ -82,8 +113,138 @@ class AuthService {
    */
   isAuthenticated(): boolean {
     const token = this.getAuthToken();
-    const userInfo = this.getCurrentUser();
-    return !!(token && userInfo);
+    if (!token) return false;
+    
+    // 验证token是否过期
+    if (this.isTokenExpired(token)) {
+      this.logout(); // 清除过期token
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * 解析JWT token
+   * 
+   * @description 解析JWT token获取载荷信息
+   * @param token JWT token字符串
+   * @returns JWT载荷对象或null
+   */
+  private parseJwtToken(token: string): JwtPayload | null {
+    try {
+      // JWT token格式: header.payload.signature
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid JWT token format');
+        return null;
+      }
+
+      // 解码payload部分（Base64URL编码）
+      const payload = parts[1];
+      const decodedPayload = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decodedPayload) as JwtPayload;
+    } catch (error) {
+      console.error('Failed to parse JWT token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 检查token是否过期
+   * 
+   * @description 检查JWT token是否已过期
+   * @param token JWT token字符串
+   * @returns 是否过期
+   */
+  private isTokenExpired(token: string): boolean {
+    const payload = this.parseJwtToken(token);
+    if (!payload || !payload.exp) {
+      return true; // 无法解析或没有过期时间，视为过期
+    }
+
+    // JWT的exp是秒级时间戳，JavaScript的Date.now()是毫秒级
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp < currentTime;
+  }
+
+  /**
+   * 从token获取用户信息
+   * 
+   * @description 从JWT token中提取用户信息
+   * @param token JWT token字符串
+   * @returns 用户信息对象或null
+   */
+  private getUserInfoFromToken(token: string): UserInfo | null {
+    const payload = this.parseJwtToken(token);
+    if (!payload) return null;
+
+    return {
+      id: parseInt(payload.sub),
+      username: payload.email.split('@')[0], // 从邮箱提取用户名
+      email: payload.email,
+      role: payload.role
+    };
+  }
+
+  /**
+   * 自动登录
+   * 
+   * @description 使用存储的token自动登录用户
+   * @returns 是否自动登录成功
+   */
+  autoLogin(): boolean {
+    const token = this.getAuthToken();
+    if (!token) return false;
+
+    // 检查token是否有效
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+
+    // 从token中获取用户信息并更新本地存储
+    const userInfo = this.getUserInfoFromToken(token);
+    if (userInfo) {
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      console.log('自动登录成功:', userInfo);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 获取token剩余有效时间
+   * 
+   * @description 获取JWT token的剩余有效时间（秒）
+   * @returns 剩余时间（秒），-1表示无效或已过期
+   */
+  getTokenRemainingTime(): number {
+    const token = this.getAuthToken();
+    if (!token) return -1;
+
+    const payload = this.parseJwtToken(token);
+    if (!payload || !payload.exp) return -1;
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const remainingTime = payload.exp - currentTime;
+    return remainingTime > 0 ? remainingTime : -1;
+  }
+
+  /**
+   * 检查token是否即将过期
+   * 
+   * @description 检查token是否在指定时间内过期
+   * @param thresholdMinutes 阈值时间（分钟），默认5分钟
+   * @returns 是否即将过期
+   */
+  isTokenExpiringSoon(thresholdMinutes: number = 5): boolean {
+    const remainingTime = this.getTokenRemainingTime();
+    if (remainingTime === -1) return true;
+    
+    const thresholdSeconds = thresholdMinutes * 60;
+    return remainingTime <= thresholdSeconds;
   }
 }
 
