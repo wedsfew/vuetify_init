@@ -1,82 +1,186 @@
-<template>
-  <v-footer
-    app
-    height="40"
-  >
-    <a
-      v-for="item in items"
-      :key="item.title"
-      class="d-inline-block mx-2 social-link"
-      :href="item.href"
-      rel="noopener noreferrer"
-      target="_blank"
-      :title="item.title"
-    >
-      <v-icon
-        :icon="item.icon"
-        :size="item.icon === '$vuetify' ? 24 : 16"
-      />
-    </a>
+<!--
+/**
+ * @fileoverview 应用底部组件
+ * @description 展示应用的底部信息，包括版权和链接
+ * @author 开发团队 <dev@example.com>
+ * @created 2024-01-20
+ * @updated 2024-01-20
+ * @version 1.0.0
+ */
+-->
 
-    <div
-      class="text-caption text-disabled"
-      style="position: absolute; right: 16px;"
-    >
-      &copy; 2016-{{ (new Date()).getFullYear() }} <span class="d-none d-sm-inline-block">Vuetify, LLC</span>
-      —
-      <a
-        class="text-decoration-none on-surface"
-        href="https://vuetifyjs.com/about/licensing/"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        MIT License
-      </a>
-    </div>
+<template>
+  <!-- 应用底部容器 -->
+  <v-footer class="app-footer">
+    <v-container>
+      <v-row align="center" justify="center">
+        <v-col cols="12" class="text-center">
+          <!-- 版权信息 -->
+          <div class="footer-content">
+            <p class="footer-text">
+              &copy; {{ currentYear }} Vue3 + Vuetify 项目
+              <span class="separator">|</span>
+              基于 Vue 3 + Vuetify 3.x + TypeScript 构建
+            </p>
+            
+            <!-- 技术栈信息 -->
+            <div class="tech-stack">
+              <v-chip
+                v-for="tech in techStack"
+                :key="tech.name"
+                size="small"
+                variant="outlined"
+                class="ma-1"
+                :color="tech.color"
+              >
+                <v-icon :icon="tech.icon" class="mr-1" size="16" />
+                {{ tech.name }}
+              </v-chip>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-footer>
 </template>
 
 <script setup lang="ts">
-  const items = [
-    {
-      title: 'Vuetify Documentation',
-      icon: `$vuetify`,
-      href: 'https://vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify Support',
-      icon: 'mdi-shield-star-outline',
-      href: 'https://support.vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify X',
-      icon: ['M2.04875 3.00002L9.77052 13.3248L1.99998 21.7192H3.74882L10.5519 14.3697L16.0486 21.7192H22L13.8437 10.8137L21.0765 3.00002H19.3277L13.0624 9.76874L8.0001 3.00002H2.04875ZM4.62054 4.28821H7.35461L19.4278 20.4308H16.6937L4.62054 4.28821Z'],
-      href: 'https://x.com/vuetifyjs',
-    },
-    {
-      title: 'Vuetify GitHub',
-      icon: `mdi-github`,
-      href: 'https://github.com/vuetifyjs/vuetify',
-    },
-    {
-      title: 'Vuetify Discord',
-      icon: ['M22,24L16.75,19L17.38,21H4.5A2.5,2.5 0 0,1 2,18.5V3.5A2.5,2.5 0 0,1 4.5,1H19.5A2.5,2.5 0 0,1 22,3.5V24M12,6.8C9.32,6.8 7.44,7.95 7.44,7.95C8.47,7.03 10.27,6.5 10.27,6.5L10.1,6.33C8.41,6.36 6.88,7.53 6.88,7.53C5.16,11.12 5.27,14.22 5.27,14.22C6.67,16.03 8.75,15.9 8.75,15.9L9.46,15C8.21,14.73 7.42,13.62 7.42,13.62C7.42,13.62 9.3,14.9 12,14.9C14.7,14.9 16.58,13.62 16.58,13.62C16.58,13.62 15.79,14.73 14.54,15L15.25,15.9C15.25,15.9 17.33,16.03 18.73,14.22C18.73,14.22 18.84,11.12 17.12,7.53C17.12,7.53 15.59,6.36 13.9,6.33L13.73,6.5C13.73,6.5 15.53,7.03 16.56,7.95C16.56,7.95 14.68,6.8 12,6.8M9.93,10.59C10.58,10.59 11.11,11.16 11.1,11.86C11.1,12.55 10.58,13.13 9.93,13.13C9.29,13.13 8.77,12.55 8.77,11.86C8.77,11.16 9.28,10.59 9.93,10.59M14.1,10.59C14.75,10.59 15.27,11.16 15.27,11.86C15.27,12.55 14.75,13.13 14.1,13.13C13.46,13.13 12.94,12.55 12.94,11.86C12.94,11.16 13.45,10.59 14.1,10.59Z'],
-      href: 'https://community.vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify Reddit',
-      icon: `mdi-reddit`,
-      href: 'https://reddit.com/r/vuetifyjs',
-    },
-  ]
+/**
+ * 应用底部组件的组合式 API 逻辑
+ * 
+ * @description 处理底部信息的展示和数据管理
+ */
+
+/**
+ * 技术栈信息接口
+ * 
+ * @description 定义技术栈项目的结构
+ */
+interface TechStackItem {
+  /** 技术名称 */
+  name: string;
+  /** 图标名称 */
+  icon: string;
+  /** 颜色 */
+  color: string;
+}
+
+/**
+ * 当前年份
+ * 
+ * @description 获取当前年份用于版权信息
+ */
+const currentYear = computed(() => new Date().getFullYear());
+
+/**
+ * 技术栈列表
+ * 
+ * @description 项目使用的主要技术栈
+ */
+const techStack = ref<TechStackItem[]>([
+  {
+    name: 'Vue 3',
+    icon: 'mdi-vuejs',
+    color: 'green'
+  },
+  {
+    name: 'Vuetify',
+    icon: 'mdi-vuetify',
+    color: 'blue'
+  },
+  {
+    name: 'TypeScript',
+    icon: 'mdi-language-typescript',
+    color: 'blue-darken-2'
+  },
+  {
+    name: 'Vite',
+    icon: 'mdi-lightning-bolt',
+    color: 'yellow-darken-2'
+  },
+  {
+    name: 'Pinia',
+    icon: 'mdi-store',
+    color: 'orange'
+  }
+]);
+
+/**
+ * 组件挂载时的初始化
+ */
+onMounted(() => {
+  console.log('AppFooter 组件已挂载');
+});
 </script>
 
-<style scoped lang="sass">
-  .social-link :deep(.v-icon)
-    color: rgba(var(--v-theme-on-background), var(--v-disabled-opacity))
-    text-decoration: none
-    transition: .2s ease-in-out
+<style scoped>
+/**
+ * 应用底部样式
+ * 
+ * @description 定义底部组件的样式
+ */
 
-    &:hover
-      color: rgba(25, 118, 210, 1)
+/* 底部容器 */
+.app-footer {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin-top: auto;
+}
+
+/* 底部内容 */
+.footer-content {
+  padding: 16px 0;
+}
+
+/* 底部文字 */
+.footer-text {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+/* 分隔符 */
+.separator {
+  margin: 0 8px;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* 技术栈容器 */
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+  .footer-text {
+    font-size: 12px;
+  }
+  
+  .separator {
+    display: block;
+    margin: 4px 0;
+  }
+  
+  .tech-stack {
+    margin-top: 8px;
+  }
+}
+
+/* 深色主题适配 */
+.v-theme--dark .app-footer {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.v-theme--dark .footer-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.v-theme--dark .separator {
+  color: rgba(255, 255, 255, 0.3);
+}
 </style>
