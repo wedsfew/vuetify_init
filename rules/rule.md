@@ -12,3 +12,5 @@
 截图均保存在[test](../test/screenshot/)文件夹目录下
 
 ## vue组件 使用vuetify-mcp 创建
+## [api接口文档目录](../rules/api/api文档/) 这是后端api接口文档文件夹,方便你了解后端API接口
+## [Api请求统一规范](../rules/api/API请求统一规范.md) 这是后端api请求统一规范文档,方便你了解前端api请求规则
