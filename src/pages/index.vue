@@ -174,28 +174,13 @@ const isLoggedIn = ref(false)
  */
 const items = ref([ 
   { 
-    title: 'Dashboard', 
-    prependIcon: 'mdi-view-dashboard-outline', 
+    title: '域名注册', 
+    prependIcon: 'mdi-web-plus', 
     link: true, 
   }, 
   { 
-    title: 'Team', 
-    prependIcon: 'mdi-account-group', 
-    link: true, 
-  }, 
-  { 
-    title: 'Projects', 
-    prependIcon: 'mdi-briefcase-outline', 
-    link: true, 
-  }, 
-  { 
-    title: 'Calendar', 
-    prependIcon: 'mdi-calendar', 
-    link: true, 
-  }, 
-  { 
-    title: 'Reports', 
-    prependIcon: 'mdi-file-chart-outline', 
+    title: '域名管理', 
+    prependIcon: 'mdi-web-check', 
     link: true, 
   }, 
 ]) 

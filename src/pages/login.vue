@@ -385,7 +385,12 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 .login-page {
   position: relative;
   min-height: 100vh;
-  background: #FFFFFF;
+  background: linear-gradient(135deg, 
+    #f8fafc 0%, 
+    #f1f5f9 25%, 
+    #e2e8f0 50%, 
+    #f8fafc 75%, 
+    #ffffff 100%);
   overflow: hidden;
 }
 
@@ -398,7 +403,7 @@ watch(() => loginData.value.rememberMe, (newValue) => {
   height: 100%;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 /* 网格线条 */
@@ -409,18 +414,13 @@ watch(() => loginData.value.rememberMe, (newValue) => {
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(rgba(100, 200, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(100, 200, 255, 0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: gridMove 25s linear infinite;
+    linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+  background-size: 80px 80px;
   border-radius: 20px;
 }
 
-/* 网格移动动画 */
-@keyframes gridMove {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
-}
+
 
 /* 浮动粒子容器 */
 .floating-particles {
@@ -434,13 +434,12 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 /* 粒子样式 */
 .particle {
   position: absolute;
-  background: radial-gradient(circle, rgba(100, 200, 255, 0.8) 0%, rgba(150, 220, 255, 0.4) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.2) 0%, rgba(203, 213, 225, 0.1) 70%, transparent 100%);
   border-radius: 50%;
-  animation: float 18s ease-in-out infinite;
+  animation: float 25s ease-in-out infinite;
   box-shadow: 
-    0 0 20px rgba(100, 200, 255, 0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(2px);
+    0 0 10px rgba(148, 163, 184, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 /* 粒子浮动动画 */
@@ -450,10 +449,10 @@ watch(() => loginData.value.rememberMe, (newValue) => {
     opacity: 0;
   }
   10%, 90% {
-    opacity: 1;
+    opacity: 0.6;
   }
   50% {
-    transform: translateY(-100px) rotate(180deg);
+    transform: translateY(-60px) rotate(90deg);
   }
 }
 
@@ -497,13 +496,14 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 
 /* 登录卡片 */
 .login-card {
-  background: #FFFFFF !important;
-  border: 1px solid #E0E0E0;
-  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px !important;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 4px 16px rgba(0, 0, 0, 0.04) !important;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    0 4px 20px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
   max-width: 380px;
   width: 100%;
   margin: 0;
@@ -511,19 +511,18 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .login-card:hover {
-  border-color: rgba(25, 118, 210, 0.3);
-  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
   box-shadow: 
-    0 16px 48px rgba(0, 0, 0, 0.12),
-    0 8px 24px rgba(0, 0, 0, 0.08),
-    inset 0 2px 8px rgba(255, 255, 255, 0.15);
+    0 8px 30px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* 登录头部 */
 .login-header {
   padding: 28px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid #E0E0E0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .header-content {
@@ -538,38 +537,36 @@ watch(() => loginData.value.rememberMe, (newValue) => {
   position: relative;
   padding: 16px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(100, 200, 255, 0.2), rgba(150, 220, 255, 0.3));
-  border: 2px solid rgba(100, 200, 255, 0.35);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.15));
+  border: 2px solid rgba(59, 130, 246, 0.2);
   box-shadow: 
-    0 6px 20px rgba(100, 200, 255, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2);
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    0 4px 12px rgba(59, 130, 246, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
 }
 
 .logo-container:hover {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.05);
   box-shadow: 
-    0 12px 35px rgba(100, 200, 255, 0.3),
-    inset 0 2px 6px rgba(255, 255, 255, 0.25);
+    0 6px 20px rgba(59, 130, 246, 0.15),
+    inset 0 1px 3px rgba(255, 255, 255, 0.6);
 }
 
 .login-icon {
-  color: #64c8ff !important;
-  filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.5));
+  color: #3b82f6 !important;
   transition: all 0.3s ease;
 }
 
 /* 登录标题 */
 .login-title {
-  color: #ffffff;
+  color: #1e293b;
   font-size: 20px;
-  font-weight: 300;
+  font-weight: 600;
   margin: 0;
-  text-shadow: 0 0 10px rgba(100, 200, 255, 0.4);
 }
 
 .login-subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: #64748b;
   font-size: 14px;
   margin: 0;
 }
@@ -581,42 +578,40 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 
 /* 输入框样式 */
 .login-input :deep(.v-field) {
-  background: rgba(240, 248, 255, 0.08) !important;
-  border-color: rgba(100, 200, 255, 0.3) !important;
-  border-radius: 16px !important;
-  border-width: 2px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  border-radius: 12px !important;
+  border-width: 1px !important;
   box-shadow: 
-    0 4px 15px rgba(100, 200, 255, 0.1),
-    inset 0 2px 4px rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
 }
 
 .login-input :deep(.v-field--focused) {
-  border-color: #64c8ff !important;
-  background: rgba(240, 248, 255, 0.12) !important;
-  transform: scale(1.02);
+  border-color: #3b82f6 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   box-shadow: 
-    0 8px 25px rgba(100, 200, 255, 0.2),
-    inset 0 2px 6px rgba(255, 255, 255, 0.1) !important;
+    0 4px 12px rgba(59, 130, 246, 0.1),
+    inset 0 1px 3px rgba(255, 255, 255, 0.9) !important;
 }
 
 .login-input :deep(.v-field__input) {
-  color: #ffffff !important;
+  color: #1e293b !important;
   padding: 16px 20px !important;
 }
 
 .login-input :deep(.v-label) {
-  color: rgba(200, 230, 255, 0.9) !important;
+  color: #64748b !important;
   font-weight: 500;
 }
 
 .login-input :deep(.v-field__prepend-inner .v-icon) {
-  color: #64c8ff !important;
-  filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.4));
+  color: #3b82f6 !important;
 }
 
 .login-input :deep(.v-field__append-inner .v-icon) {
-  color: rgba(200, 230, 255, 0.8) !important;
+  color: #64748b !important;
 }
 
 /* 记住我复选框 */
@@ -625,7 +620,7 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .remember-checkbox :deep(.v-label) {
-  color: rgba(200, 230, 255, 0.9) !important;
+  color: #475569 !important;
   font-size: 14px;
   font-weight: 500;
 }
@@ -640,62 +635,60 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .remember-checkbox :deep(.v-selection-control__input .v-icon) {
-  color: #64c8ff !important;
-  filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.4));
+  color: #3b82f6 !important;
 }
 
 /* 登录按钮 */
 .login-btn {
   margin-top: 16px;
-  background: linear-gradient(135deg, #64c8ff, #4facfe) !important;
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
   color: #ffffff !important;
   font-weight: 600;
   text-transform: none;
-  border-radius: 20px !important;
+  border-radius: 12px !important;
   padding: 12px 24px !important;
   box-shadow: 
-    0 6px 20px rgba(100, 200, 255, 0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 2px solid rgba(100, 200, 255, 0.3) !important;
+    0 4px 12px rgba(59, 130, 246, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease;
+  border: none !important;
 }
 
 .login-btn:hover {
-  background: linear-gradient(135deg, #7dd3fc, #60a5fa) !important;
-  transform: translateY(-4px) scale(1.05);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  transform: translateY(-1px);
   box-shadow: 
-    0 15px 40px rgba(100, 200, 255, 0.4),
-    inset 0 2px 6px rgba(255, 255, 255, 0.25) !important;
-  border-color: rgba(100, 200, 255, 0.5) !important;
+    0 6px 20px rgba(59, 130, 246, 0.3),
+    inset 0 1px 3px rgba(255, 255, 255, 0.25) !important;
 }
 
 .login-btn:active {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(0);
   transition: all 0.1s ease;
 }
 
 .login-btn:disabled {
-  background: rgba(100, 200, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(148, 163, 184, 0.3) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
   transform: none !important;
-  box-shadow: 0 4px 15px rgba(100, 200, 255, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* 登录底部 */
 .login-footer {
   padding: 16px 24px 24px;
-  border-top: 1px solid rgba(100, 200, 255, 0.2);
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 /* 忘记密码按钮 */
 .forgot-btn {
-  color: #64c8ff !important;
+  color: #3b82f6 !important;
   text-transform: none;
   font-size: 12px;
 }
 
 .forgot-btn:hover {
-  background: rgba(100, 200, 255, 0.1) !important;
+  background: rgba(59, 130, 246, 0.1) !important;
 }
 
 /* 版权信息 */
@@ -709,7 +702,7 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .copyright p {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(100, 116, 139, 0.6);
   font-size: 12px;
   margin: 0;
 }
@@ -740,6 +733,6 @@ watch(() => loginData.value.rememberMe, (newValue) => {
 }
 
 .v-card--loading::before {
-  background: rgba(100, 200, 255, 0.15);
+  background: rgba(59, 130, 246, 0.1);
 }
 </style>
