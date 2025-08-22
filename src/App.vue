@@ -26,8 +26,18 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from 'vue'
 import GlobalDialog from '@/components/GlobalDialog.vue'
 import { globalDialog } from '@/composables/useGlobalDialog'
+import { useGlobalTheme } from '@/composables/useTheme'
+
+// 初始化主题
+const { initTheme } = useGlobalTheme()
+
+// 组件挂载时初始化主题
+onMounted(() => {
+  initTheme()
+})
 </script>
 
 <style scoped>

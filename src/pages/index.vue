@@ -53,6 +53,9 @@
        <v-app-bar-title>webdom提供免费子域名服务</v-app-bar-title> 
 
        <template #append> 
+         <!-- 主题切换按钮 -->
+         <ThemeToggle class="me-2" />
+         
          <v-card class="jelly-card user-card" variant="flat" @click="handleUserMenuClick">
            <v-card-text class="pa-2">
              <v-btn class="text-none" height="48" icon slim> 
@@ -93,7 +96,7 @@
              </v-btn> 
            </v-card-text>
          </v-card>
-       </template> 
+       </template>
      </v-app-bar> 
 
     <v-main class="jelly-main"> 
@@ -198,12 +201,19 @@
 
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useGlobalTheme } from '@/composables/useTheme'
 import DomainRegister from './domain-register.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 /**
  * 路由实例
  */
 const router = useRouter()
+
+/**
+ * 主题功能
+ */
+const { initTheme } = useGlobalTheme()
 
 /**
  * 抽屉状态
