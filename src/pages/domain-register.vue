@@ -9,8 +9,10 @@
       <v-col cols="12" sm="10" md="8" lg="6" xl="5">
         <!-- 页面标题 -->
         <div class="text-center mb-8">
-          <v-icon size="64" color="primary" class="mb-4">mdi-magnify</v-icon>
-          <h1 class="text-h3 font-weight-bold mb-3 text-primary">搜索子域名</h1>
+          <div class="d-flex align-center justify-center mb-4">
+            <v-icon size="64" color="primary" class="me-3">mdi-magnify</v-icon>
+            <h1 class="text-h3 font-weight-bold text-primary">搜索子域名</h1>
+          </div>
           <p class="text-h6 text-medium-emphasis">
             发现您的完美域名
           </p>
@@ -126,6 +128,7 @@
                   color="primary"
                   variant="outlined"
                   size="small"
+                  :loading="registering"
                   @click="registerDomain(result)"
                 >
                   注册
@@ -137,116 +140,6 @@
       </v-col>
     </v-row>
 
-    <!-- 注册对话框 -->
-    <v-dialog v-model="registerDialog" max-width="600" persistent>
-      <v-card>
-        <v-card-title class="text-h5 pa-6">
-          注册域名: {{ selectedDomain?.domain }}
-        </v-card-title>
-        
-        <v-card-text class="pa-6">
-          <v-form v-model="registerFormValid" ref="registerFormRef">
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="registerForm.name"
-                  label="姓名"
-                  prepend-inner-icon="mdi-account-outline"
-                  variant="outlined"
-                  :rules="nameRules"
-                  required
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="registerForm.email"
-                  label="邮箱"
-                  type="email"
-                  prepend-inner-icon="mdi-email-outline"
-                  variant="outlined"
-                  :rules="emailRules"
-                  required
-                />
-              </v-col>
-            </v-row>
-            
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="registerForm.phone"
-                  label="手机号码"
-                  prepend-inner-icon="mdi-phone-outline"
-                  variant="outlined"
-                  :rules="phoneRules"
-                  required
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="registerForm.years"
-                  :items="yearOptions"
-                  label="注册年限"
-                  prepend-inner-icon="mdi-calendar"
-                  variant="outlined"
-                  required
-                />
-              </v-col>
-            </v-row>
-            
-            <!-- 域名信息 -->
-            <v-card variant="tonal" color="primary" class="my-4">
-              <v-card-text>
-                <div class="d-flex justify-space-between align-center">
-                  <div>
-                    <div class="text-h6">免费域名注册</div>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ selectedDomain?.domain }} × {{ registerForm.years }}年
-                    </div>
-                  </div>
-                  <div class="text-h5 font-weight-bold text-success">
-                    免费
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
-            
-            <!-- 服务条款 -->
-            <v-checkbox
-              v-model="registerForm.agreeTerms"
-              :rules="termsRules"
-              required
-            >
-              <template #label>
-                <span class="text-body-2">
-                  我已阅读并同意
-                  <a href="#" class="text-primary text-decoration-none">服务条款</a>
-                  和
-                  <a href="#" class="text-primary text-decoration-none">隐私政策</a>
-                </span>
-              </template>
-            </v-checkbox>
-          </v-form>
-        </v-card-text>
-        
-        <v-card-actions class="pa-6 pt-0">
-          <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="registerDialog = false"
-          >
-            取消
-          </v-btn>
-          <v-btn
-            color="primary"
-            :loading="registering"
-            :disabled="!registerFormValid || !registerForm.agreeTerms"
-            @click="handleRegister"
-          >
-            立即注册
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <!-- 注册成功对话框 -->
         <v-dialog v-model="successDialog" max-width="500">
@@ -308,17 +201,8 @@ const registering = ref(false)
 const successDialog = ref(false)
 const formValid = ref(false)
 
-// 注册对话框相关
-const registerDialog = ref(false)
+// 注册相关
 const selectedDomain = ref<{domain: string} | null>(null)
-const registerForm = ref({
-  name: '',
-  email: '',
-  phone: '',
-  years: 1,
-  agreeTerms: false
-})
-const registerFormValid = ref(false)
 
 // 域名后缀选项
 const domainSuffixes = ref<Array<{title: string, value: string, price: number}>>([])
@@ -343,24 +227,14 @@ const loadAvailableSuffixes = async () => {
     console.error('加载域名后缀失败:', error)
     // 使用默认后缀作为备选
     domainSuffixes.value = [
-      { title: 'cblog.eu', value: 'cblog.eu' },
-      { title: 'test23.cblog.eu', value: 'test23.cblog.eu' },
-      { title: 'twodoller.store', value: 'twodoller.store' },
-      { title: 'vvvv.host', value: 'vvvv.host' }
+      { title: 'cblog.eu', value: 'cblog.eu', price: 0 },
+      { title: 'vvvv.host', value: 'vvvv.host', price: 0 }
     ]
   } finally {
     loadingSuffixes.value = false
   }
 }
 
-// 注册年限选项
-const yearOptions = ref([
-  { title: '1年', value: 1 },
-  { title: '2年', value: 2 },
-  { title: '3年', value: 3 },
-  { title: '5年', value: 5 },
-  { title: '10年', value: 10 }
-])
 
 
 // 表单验证规则
@@ -377,24 +251,6 @@ const yearsRules = [
   (v: number) => !!v || '请选择注册年限'
 ]
 
-const nameRules = [
-  (v: string) => !!v || '请输入姓名',
-  (v: string) => v.length >= 2 || '姓名至少2个字符'
-]
-
-const emailRules = [
-  (v: string) => !!v || '请输入邮箱',
-  (v: string) => /.+@.+\..+/.test(v) || '邮箱格式不正确'
-]
-
-const phoneRules = [
-  (v: string) => !!v || '请输入手机号码',
-  (v: string) => /^1[3-9]\d{9}$/.test(v) || '手机号码格式不正确'
-]
-
-const termsRules = [
-  (v: boolean) => !!v || '请同意服务条款'
-]
 
 // 搜索处理
 const handleSearch = async () => {
@@ -411,6 +267,7 @@ const handleSearch = async () => {
       searchResults.value = [{
         domain: '请先登录',
         suffix: '',
+        price: 0,
         available: false
       }]
       return
@@ -450,7 +307,10 @@ const handleSearch = async () => {
     
     // 等待所有查询完成
     const queryResults = await Promise.all(promises)
-    searchResults.value = queryResults
+    searchResults.value = queryResults.map(result => ({
+      ...result,
+      price: 0 // 添加默认价格，实际价格需要从后端获取
+    }))
     
   } catch (error) {
     console.error('搜索域名时发生错误:', error)
@@ -460,9 +320,61 @@ const handleSearch = async () => {
 }
 
 // 注册域名
-const registerDomain = (result: {domain: string}) => {
-  selectedDomain.value = result
-  registerDialog.value = true
+const registerDomain = async (result: {domain: string}) => {
+  registering.value = true
+  
+  try {
+    // 获取JWT令牌
+    const token = localStorage.getItem('token')
+    if (!token) {
+      console.error('未找到JWT令牌，请先登录')
+      return
+    }
+    
+    // 解析域名信息
+    const domainParts = result.domain.split('.')
+    if (!domainParts || domainParts.length < 2) {
+      console.error('域名格式错误')
+      return
+    }
+    
+    const subDomain = domainParts[0]
+    const domain = domainParts.slice(1).join('.')
+    
+    // 调用注册接口
+    const response = await fetch('/api/user/domains/register', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        subDomain: subDomain,
+        domain: domain,
+        value: '8.8.8.8', // 默认IP地址
+        ttl: 600 // 默认TTL值
+      })
+    })
+    
+    const apiResult = await response.json()
+    
+    if (apiResult.code === 200) {
+      console.log('域名注册成功:', apiResult)
+      selectedDomain.value = result
+      successDialog.value = true
+      // 重新搜索以更新状态
+      await handleSearch()
+    } else {
+      console.error('域名注册失败:', apiResult.message)
+      // 这里可以显示错误提示
+    }
+    
+  } catch (error) {
+    console.error('域名注册失败:', error)
+    // 这里可以显示错误提示
+  } finally {
+    registering.value = false
+  }
 }
 
 // 域名输入处理
@@ -498,51 +410,16 @@ const checkDomainAvailability = async () => {
   }
 }
 
-// 处理注册
-const handleRegister = async () => {
-  if (!registerFormValid.value || !registerForm.value.agreeTerms) {
-    return
-  }
-  
-  registering.value = true
-  
-  try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    console.log('注册域名:', {
-      domain: selectedDomain.value?.domain,
-      years: registerForm.value.years,
-      contact: registerForm.value
-    })
-    
-    registerDialog.value = false
-    successDialog.value = true
-    resetForm()
-  } catch (error) {
-    console.error('域名注册失败:', error)
-    // 这里可以显示错误提示
-  } finally {
-    registering.value = false
-  }
-}
 
 // 重置表单
 const resetForm = () => {
   searchQuery.value = ''
   searchResults.value = []
-  registerForm.value = {
-     name: '',
-     email: '',
-     phone: '',
-     years: 1,
-     agreeTerms: false
-   }
-   selectedDomain.value = null
-   domainStatus.value = null
-   domainErrorMessage.value = ''
-   formRef.value?.resetValidation()
- }
+  selectedDomain.value = null
+  domainStatus.value = null
+  domainErrorMessage.value = ''
+  formRef.value?.resetValidation()
+}
  
  // 组件挂载时加载可用后缀
  onMounted(() => {

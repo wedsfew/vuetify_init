@@ -50,7 +50,7 @@
     <v-app-bar border="b" class="ps-4 jelly-app-bar" flat> 
        <v-app-bar-nav-icon v-if="$vuetify.display.smAndDown" @click="drawer = !drawer" /> 
 
-       <v-app-bar-title>Application</v-app-bar-title> 
+       <v-app-bar-title>webdom提供免费子域名服务</v-app-bar-title> 
 
        <template #append> 
          <v-card class="jelly-card user-card" variant="flat" @click="handleUserMenuClick">
@@ -197,7 +197,13 @@
  */
 
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import DomainRegister from './domain-register.vue'
+
+/**
+ * 路由实例
+ */
+const router = useRouter()
 
 /**
  * 抽屉状态
@@ -211,7 +217,7 @@ const drawer = ref(true)
  * 
  * @description 控制主内容区域显示的页面组件
  */
-const currentPage = ref('home')
+const currentPage = ref('domain-register')
 
 /**
  * 登录状态检查相关状态
@@ -326,8 +332,7 @@ const items = ref([
   */
  const handleLogin = () => {
    console.log('跳转到登录页面');
-   // 这里可以添加跳转到登录页面的逻辑
-   // 例如: router.push('/login')
+   router.push('/login')
  };
 
  /**
