@@ -172,35 +172,35 @@ class HttpClient {
    * GET请求
    */
   get<T = any>(url: string, config?: RequestConfig): Promise<T> {
-    return this.instance.get(url, config)
+    return this.instance.get(url, config).then(response => response.data)
   }
 
   /**
    * POST请求
    */
   post<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
-    return this.instance.post(url, data, config)
+    return this.instance.post(url, data, config).then(response => response.data)
   }
 
   /**
    * PUT请求
    */
   put<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
-    return this.instance.put(url, data, config)
+    return this.instance.put(url, data, config).then(response => response.data)
   }
 
   /**
    * DELETE请求
    */
   delete<T = any>(url: string, config?: RequestConfig): Promise<T> {
-    return this.instance.delete(url, config)
+    return this.instance.delete(url, config).then(response => response.data)
   }
 
   /**
    * PATCH请求
    */
   patch<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
-    return this.instance.patch(url, data, config)
+    return this.instance.patch(url, data, config).then(response => response.data)
   }
 
   /**

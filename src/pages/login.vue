@@ -162,6 +162,7 @@
  */
 
 // 导入认证服务和类型
+import { ref, watch, onMounted } from 'vue';
 import { authService } from '@/services';
 import type { LoginFormData } from '@/types/auth';
 import { useRouter, useRoute } from 'vue-router';
@@ -370,6 +371,44 @@ watch(() => loginData.value.rememberMe, (newValue) => {
     localStorage.setItem('rememberedEmail', loginData.value.email);
   } else {
     localStorage.removeItem('rememberedEmail');
+  }
+});
+
+/**
+ * 检查登录状态并自动跳转
+ */
+const checkLoginStatusAndRedirect = () => {
+  try {
+    // 使用 authService 检查登录状态
+    if (authService.isAuthenticated()) {
+      const user = authService.getCurrentUser();
+      console.log('用户已登录，自动跳转到主页:', user);
+      
+      // 显示提示信息
+      showSuccess('您已登录，正在跳转到主页...');
+      
+      // 延迟跳转，让用户看到提示
+      setTimeout(() => {
+        handleRedirectAfterLogin();
+      }, 1000);
+    }
+  } catch (error) {
+    console.error('检查登录状态失败:', error);
+  }
+};
+
+/**
+ * 组件挂载时的初始化操作
+ */
+onMounted(() => {
+  // 检查用户是否已登录，如果已登录则自动跳转
+  checkLoginStatusAndRedirect();
+  
+  // 从本地存储恢复记住的邮箱
+  const rememberedEmail = localStorage.getItem('rememberedEmail');
+  if (rememberedEmail) {
+    loginData.value.email = rememberedEmail;
+    loginData.value.rememberMe = true;
   }
 });
 </script>

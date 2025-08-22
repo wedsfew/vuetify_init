@@ -17,9 +17,9 @@
           v-for="item in items" 
           :key="item.title"
           class="jelly-card nav-card mb-2" 
-          :class="{ 'nav-card-active': currentPage === item.value }"
-          :variant="currentPage === item.value ? 'elevated' : 'tonal'"
-          :color="currentPage === item.value ? 'primary' : undefined"
+          :class="{ 'nav-card-active': isCurrentPage(item.value) }"
+          :variant="isCurrentPage(item.value) ? 'elevated' : 'tonal'"
+          :color="isCurrentPage(item.value) ? 'primary' : undefined"
           @click="handleNavClick(item.title)"
         >
           <v-card-text class="pa-3">
@@ -28,11 +28,11 @@
                 :icon="item.prependIcon" 
                 class="me-3" 
                 size="20" 
-                :color="currentPage === item.value ? 'white' : undefined"
+                :color="isCurrentPage(item.value) ? 'white' : undefined"
               />
               <span 
                 class="text-body-2 font-weight-medium"
-                :class="{ 'text-white': currentPage === item.value }"
+                :class="{ 'text-white': isCurrentPage(item.value) }"
               >
                 {{ item.title }}
               </span>
@@ -45,9 +45,9 @@
         <div class="pa-3">
           <v-card 
             class="jelly-card settings-card" 
-            :class="{ 'nav-card-active': currentPage === 'settings' }"
-            :variant="currentPage === 'settings' ? 'elevated' : 'tonal'"
-            :color="currentPage === 'settings' ? 'primary' : undefined"
+            :class="{ 'nav-card-active': isCurrentPage('settings') }"
+            :variant="isCurrentPage('settings') ? 'elevated' : 'tonal'"
+            :color="isCurrentPage('settings') ? 'primary' : undefined"
             @click="handleNavClick('Settings')"
           >
             <v-card-text class="pa-3">
@@ -56,11 +56,11 @@
                   icon="mdi-cog-outline" 
                   class="me-3" 
                   size="20" 
-                  :color="currentPage === 'settings' ? 'white' : undefined"
+                  :color="isCurrentPage('settings') ? 'white' : undefined"
                 />
                 <span 
                   class="text-body-2 font-weight-medium"
-                  :class="{ 'text-white': currentPage === 'settings' }"
+                  :class="{ 'text-white': isCurrentPage('settings') }"
                 >
                   Settings
                 </span>
@@ -142,27 +142,27 @@
         <!-- 动态内容区域 -->
         
         <!-- 域名注册页面 -->
-        <div v-if="currentPage === 'domain-register'">
+        <div v-if="currentPageName === 'domain-register'">
           <DomainRegister />
         </div>
         
         <!-- 域名管理页面 -->
-        <div v-else-if="currentPage === 'domain-manage'">
+        <div v-else-if="currentPageName === 'domain-manage'">
           <DomainManage />
         </div>
         
         <!-- API测试页面 -->
-        <div v-else-if="currentPage === 'api-test'">
+        <div v-else-if="currentPageName === 'api-test'">
           <ApiTest />
         </div>
         
         <!-- 域名测试页面 -->
-        <div v-else-if="currentPage === 'domain-test'">
+        <div v-else-if="currentPageName === 'domain-test'">
           <DomainTest />
         </div>
         
         <!-- 设置页面 -->
-        <div v-else-if="currentPage === 'settings'">
+        <div v-else-if="currentPageName === 'settings'">
           <v-card class="jelly-card" rounded="lg">
             <v-card-title class="text-h5 pa-6">
               <v-icon class="me-2">mdi-cog-outline</v-icon>
@@ -250,11 +250,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import DomainRegister from './domain-register.vue'
 import DomainManage from './domain-manage.vue'
-import Login from './login.vue'
 import ApiTest from './api-test.vue'
 import DomainTest from './domain-test.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
@@ -274,7 +273,6 @@ const { showConfirm, dialogState } = useGlobalDialog()
 
 // 响应式数据
 const drawer = ref(true)
-const currentPage = ref('domain-register') // 默认显示域名注册页面
 const isCheckingStatus = ref(false)
 const loginStatusMessage = ref('')
 const loginStatusType = ref<'success' | 'error' | 'warning' | 'info'>('info')
@@ -305,14 +303,35 @@ const items = ref([
 ])
 
 /**
+ * 当前页面名称（根据路由参数确定）
+ */
+const currentPageName = computed(() => {
+  const route = router.currentRoute.value
+  // 从路由参数或路径中获取页面名称
+  if (route.query.page) {
+    return route.query.page as string
+  }
+  // 如果没有页面参数，默认显示域名注册页面
+  return 'domain-register'
+})
+
+/**
+ * 检查是否为当前页面
+ */
+const isCurrentPage = (page: string) => {
+  return currentPageName.value === page
+}
+
+/**
  * 处理导航点击事件
  */
 const handleNavClick = (title: string) => {
   const item = items.value.find(i => i.title === title)
   if (item) {
-    currentPage.value = item.value
+    // 使用查询参数来切换页面
+    router.push({ path: '/', query: { page: item.value } })
   } else if (title === 'Settings') {
-    currentPage.value = 'settings'
+    router.push({ path: '/', query: { page: 'settings' } })
   }
 }
 
