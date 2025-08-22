@@ -33,7 +33,7 @@ router.onError((err, to) => {
 // 路由守卫：保护需要认证的页面
 router.beforeEach((to, from, next) => {
   // 公开路由列表（不需要认证的页面）
-  const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/api-test']
+  const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/api-test', '/domain-test']
   
   // 检查是否为公开路由
   const isPublicRoute = publicRoutes.some(route => to.path.startsWith(route))

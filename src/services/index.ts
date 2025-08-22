@@ -32,3 +32,12 @@ export type {
 // 导出系统服务
 export { SystemService, systemService } from './systemService'
 export type { HealthCheckResponse } from './systemService'
+
+// 导出域名服务
+export { DomainService, domainService } from './domainService'
+export type {
+  DomainInfo,
+  DomainCountInfo,
+  GetDomainListResponse,
+  GetDomainListParams
+} from './domainService'

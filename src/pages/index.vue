@@ -98,46 +98,92 @@
 
     <v-main class="jelly-main"> 
        <div class="pa-4"> 
-         <v-card 
-           class="jelly-card main-content-card" 
-           border="dashed md" 
-           color="surface-light" 
-           height="500" 
-           rounded="lg" 
-           width="100%" 
-           @click="handleMainContentClick"
-         >
-           <v-card-text class="d-flex align-center justify-center h-100">
-             <div class="text-center">
-               <v-icon size="64" color="primary" class="mb-4">mdi-view-dashboard</v-icon>
-               <div class="text-h5 mb-2">主内容区域</div>
-               <div class="text-body-1 text-medium-emphasis mb-4">点击这里开始您的工作</div>
-               
-               <!-- 登录状态检查按钮 -->
-               <v-btn 
-                 class="jelly-card login-status-btn"
-                 color="primary"
-                 variant="elevated"
-                 size="large"
-                 prepend-icon="mdi-shield-check"
-                 :loading="isCheckingStatus"
-                 @click="checkLoginStatus"
-               >
-                 检查登录状态
-               </v-btn>
-               
-               <!-- 状态显示 -->
-               <div v-if="loginStatusMessage" class="mt-4">
-                 <v-alert 
-                   :type="loginStatusType"
-                   :text="loginStatusMessage"
-                   variant="tonal"
-                   class="jelly-card"
-                 />
-               </div>
-             </div>
-           </v-card-text>
-         </v-card>
+         <!-- 动态内容区域 -->
+        <div v-if="currentPage === 'home'">
+          <v-card 
+            class="jelly-card main-content-card" 
+            border="dashed md" 
+            color="surface-light" 
+            height="500" 
+            rounded="lg" 
+            width="100%" 
+            @click="handleMainContentClick"
+          >
+            <v-card-text class="d-flex align-center justify-center h-100">
+              <div class="text-center">
+                <v-icon size="64" color="primary" class="mb-4">mdi-view-dashboard</v-icon>
+                <div class="text-h5 mb-2">主内容区域</div>
+                <div class="text-body-1 text-medium-emphasis mb-4">点击左侧菜单开始您的工作</div>
+                
+                <!-- 登录状态检查按钮 -->
+                <v-btn 
+                  class="jelly-card login-status-btn"
+                  color="primary"
+                  variant="elevated"
+                  size="large"
+                  prepend-icon="mdi-shield-check"
+                  :loading="isCheckingStatus"
+                  @click="checkLoginStatus"
+                >
+                  检查登录状态
+                </v-btn>
+                
+                <!-- 状态显示 -->
+                <div v-if="loginStatusMessage" class="mt-4">
+                  <v-alert 
+                    :type="loginStatusType"
+                    :text="loginStatusMessage"
+                    variant="tonal"
+                    class="jelly-card"
+                  />
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+        
+        <!-- 域名注册页面 -->
+        <div v-else-if="currentPage === 'domain-register'">
+          <DomainRegister />
+        </div>
+        
+        <!-- 域名管理页面 -->
+        <div v-else-if="currentPage === 'domain-manage'">
+          <v-card class="jelly-card" rounded="lg">
+            <v-card-title class="text-h5 pa-6">
+              <v-icon class="me-2">mdi-web-check</v-icon>
+              域名管理
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <div class="text-center py-12">
+                <v-icon size="64" color="info" class="mb-4">mdi-construction</v-icon>
+                <div class="text-h6 mb-2">功能开发中</div>
+                <div class="text-body-1 text-medium-emphasis">
+                  域名管理功能正在开发中，敬请期待...
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+        
+        <!-- 设置页面 -->
+        <div v-else-if="currentPage === 'settings'">
+          <v-card class="jelly-card" rounded="lg">
+            <v-card-title class="text-h5 pa-6">
+              <v-icon class="me-2">mdi-cog-outline</v-icon>
+              系统设置
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <div class="text-center py-12">
+                <v-icon size="64" color="warning" class="mb-4">mdi-construction</v-icon>
+                <div class="text-h6 mb-2">功能开发中</div>
+                <div class="text-body-1 text-medium-emphasis">
+                  系统设置功能正在开发中，敬请期待...
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
        </div> 
      </v-main> 
   </v-layout> 
@@ -150,7 +196,8 @@
  * @description 处理主页面的抽屉布局和导航
  */
 
-import { ref, onMounted } from 'vue' 
+import { ref, onMounted } from 'vue'
+import DomainRegister from './domain-register.vue'
 
 /**
  * 抽屉状态
@@ -158,6 +205,13 @@ import { ref, onMounted } from 'vue'
  * @description 控制导航抽屉的显示/隐藏状态
  */
 const drawer = ref(true)
+
+/**
+ * 当前显示的页面
+ * 
+ * @description 控制主内容区域显示的页面组件
+ */
+const currentPage = ref('home')
 
 /**
  * 登录状态检查相关状态
@@ -192,7 +246,22 @@ const items = ref([
    */
   const handleNavClick = (itemTitle) => {
     console.log(`点击了导航项: ${itemTitle}`);
-    // 这里可以添加路由跳转逻辑
+    
+    // 根据点击的菜单项切换页面
+    switch (itemTitle) {
+      case '域名注册':
+        currentPage.value = 'domain-register'
+        break
+      case '域名管理':
+        currentPage.value = 'domain-manage'
+        break
+      case 'Settings':
+        currentPage.value = 'settings'
+        break
+      default:
+        currentPage.value = 'home'
+        break
+    }
   };
 
  /**
