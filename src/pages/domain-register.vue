@@ -401,17 +401,59 @@ const handleSearch = async () => {
   if (!searchQuery.value.trim()) return
   
   searching.value = true
+  searchResults.value = []
+  
   try {
-    // 模拟搜索结果
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 获取JWT令牌
+    const token = localStorage.getItem('token')
+    if (!token) {
+      // 显示未登录提示
+      searchResults.value = [{
+        domain: '请先登录',
+        suffix: '',
+        available: false
+      }]
+      return
+    }
     
-    // 使用已加载的域名后缀
+    // 使用已加载的域名后缀进行查询
     const suffixes = domainSuffixes.value.map(item => item.value)
-    searchResults.value = suffixes.map(suffix => ({
-      domain: searchQuery.value + '.' + suffix,
-      suffix,
-      available: Math.random() > 0.3
-    }))
+    const results = []
+    
+    // 并发查询所有域名后缀的可用性
+    const promises = suffixes.map(async (suffix) => {
+      try {
+        const response = await fetch(`/api/dnspod/available-subdomain?subDomain=${encodeURIComponent(searchQuery.value)}&domain=${encodeURIComponent(suffix)}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        const result = await response.json()
+        
+        return {
+          domain: `${searchQuery.value}.${suffix}`,
+          suffix,
+          available: result.code === 200 // 200表示可用，409表示已注册
+        }
+      } catch (error) {
+        console.error(`查询域名 ${searchQuery.value}.${suffix} 失败:`, error)
+        return {
+          domain: `${searchQuery.value}.${suffix}`,
+          suffix,
+          available: false // 查询失败时标记为不可用
+        }
+      }
+    })
+    
+    // 等待所有查询完成
+    const queryResults = await Promise.all(promises)
+    searchResults.value = queryResults
+    
+  } catch (error) {
+    console.error('搜索域名时发生错误:', error)
   } finally {
     searching.value = false
   }
