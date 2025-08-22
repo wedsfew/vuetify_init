@@ -25,6 +25,7 @@ export interface DialogConfig {
   showConfirmButton?: boolean
   cancelButtonText?: string
   confirmButtonText?: string
+  confirmButtonColor?: string
   onConfirm?: () => void | Promise<void>
   onCancel?: () => void
   onClose?: () => void

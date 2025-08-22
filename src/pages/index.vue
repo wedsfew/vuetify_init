@@ -90,19 +90,48 @@
         <v-menu>
           <template #activator="{ props }">
             <v-btn v-bind="props" icon variant="text" class="text-none" style="height: 48px;">
-              <v-avatar size="32" color="surface-light">
-                <v-img src="https://cdn.vuetifyjs.com/images/john.png" alt="" />
+              <v-avatar size="32" :color="isLoggedIn ? 'primary' : 'surface-light'">
+                <v-img 
+                  v-if="isLoggedIn"
+                  src="https://cdn.vuetifyjs.com/images/john.png" 
+                  alt="用户头像" 
+                />
+                <v-icon 
+                  v-else
+                  icon="mdi-account-outline"
+                  color="grey"
+                />
               </v-avatar>
             </v-btn>
           </template>
           
           <v-list>
-            <v-list-item @click="handleLogin">
-              <template #prepend>
-                <v-icon icon="mdi-login" density="compact" />
-              </template>
-              <v-list-item-title>登录</v-list-item-title>
-            </v-list-item>
+            <!-- 已登录状态 -->
+            <template v-if="isLoggedIn">
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-account-circle" density="compact" />
+                </template>
+                <v-list-item-title>用户信息</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item @click="handleLogout">
+                <template #prepend>
+                  <v-icon icon="mdi-logout" density="compact" />
+                </template>
+                <v-list-item-title>退出登录</v-list-item-title>
+              </v-list-item>
+            </template>
+            
+            <!-- 未登录状态 -->
+            <template v-else>
+              <v-list-item @click="handleLogin">
+                <template #prepend>
+                  <v-icon icon="mdi-login" density="compact" />
+                </template>
+                <v-list-item-title>登录</v-list-item-title>
+              </v-list-item>
+            </template>
           </v-list>
         </v-menu>
       </template>
@@ -196,6 +225,27 @@
         </div>
       </div>
     </v-main>
+    
+    <!-- 全局对话框 -->
+    <GlobalDialog 
+      v-model="dialogState.visible"
+      :type="dialogState.config.type"
+      :title="dialogState.config.title"
+      :message="dialogState.config.message"
+      :icon="dialogState.config.icon"
+      :max-width="dialogState.config.maxWidth"
+      :persistent="dialogState.config.persistent"
+      :scrollable="dialogState.config.scrollable"
+      :loading="dialogState.loading"
+      :show-actions="dialogState.config.showActions"
+      :show-cancel-button="dialogState.config.showCancelButton"
+      :show-confirm-button="dialogState.config.showConfirmButton"
+      :cancel-button-text="dialogState.config.cancelButtonText"
+      :confirm-button-text="dialogState.config.confirmButtonText"
+      @confirm="dialogState.config.onConfirm?.()"
+      @cancel="dialogState.config.onCancel?.()"
+      @close="dialogState.config.onClose?.()"
+    />
   </v-app>
 </template>
 
@@ -208,7 +258,10 @@ import Login from './login.vue'
 import ApiTest from './api-test.vue'
 import DomainTest from './domain-test.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import GlobalDialog from '@/components/GlobalDialog.vue'
 import { useTheme } from '@/composables/useTheme'
+import { authService } from '@/services/authService'
+import { useGlobalDialog } from '@/composables/useGlobalDialog'
 
 // 路由
 const router = useRouter()
@@ -216,12 +269,16 @@ const router = useRouter()
 // 主题
 const { initTheme } = useTheme()
 
+// 全局对话框
+const { showConfirm, dialogState } = useGlobalDialog()
+
 // 响应式数据
 const drawer = ref(true)
 const currentPage = ref('domain-register') // 默认显示域名注册页面
 const isCheckingStatus = ref(false)
 const loginStatusMessage = ref('')
 const loginStatusType = ref<'success' | 'error' | 'warning' | 'info'>('info')
+const isLoggedIn = ref(false) // 登录状态
 
 // 导航项目
 const items = ref([
@@ -274,6 +331,42 @@ const handleLogin = () => {
 }
 
 /**
+ * 处理退出登录按钮点击事件
+ */
+const handleLogout = async () => {
+  try {
+    // 显示确认对话框
+    const confirmed = await showConfirm(
+      '确认退出登录',
+      '您确定要退出登录吗？退出后需要重新登录才能使用相关功能。',
+      {
+        confirmButtonText: '退出登录',
+        cancelButtonText: '取消'
+      }
+    )
+    
+    if (confirmed) {
+      // 调用认证服务退出登录
+      authService.logout()
+      
+      // 更新登录状态
+      isLoggedIn.value = false
+      loginStatusMessage.value = '已成功退出登录'
+      loginStatusType.value = 'info'
+      
+      console.log('用户已退出登录')
+      
+      // 可选：跳转到登录页面
+      // router.push('/login')
+    }
+  } catch (error) {
+    console.error('退出登录失败:', error)
+    loginStatusMessage.value = '退出登录失败'
+    loginStatusType.value = 'error'
+  }
+}
+
+/**
  * 检查登录状态
  */
 const checkLoginStatus = async () => {
@@ -281,20 +374,29 @@ const checkLoginStatus = async () => {
   loginStatusMessage.value = ''
   
   try {
-    // 模拟API调用
+    // 模拟API调用延迟
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // 这里应该调用实际的API来检查登录状态
-    const isLoggedIn = false // 模拟未登录状态
+    // 使用 authService 检查登录状态
+    const authenticated = authService.isAuthenticated()
+    isLoggedIn.value = authenticated
     
-    if (isLoggedIn) {
-      loginStatusMessage.value = '您已登录'
+    if (authenticated) {
+      const user = authService.getCurrentUser()
+      const remainingTime = authService.getTokenRemainingTime()
+      
+      loginStatusMessage.value = `您已登录 (${user?.username || '未知用户'})`
       loginStatusType.value = 'success'
+      
+      if (remainingTime > 0) {
+        console.log(`Token剩余有效时间: ${Math.floor(remainingTime / 60)}分钟`)
+      }
     } else {
       loginStatusMessage.value = '您尚未登录，请先登录'
       loginStatusType.value = 'warning'
     }
   } catch (error) {
+    console.error('检查登录状态失败:', error)
     loginStatusMessage.value = '检查登录状态失败'
     loginStatusType.value = 'error'
   } finally {
@@ -308,7 +410,30 @@ const checkLoginStatus = async () => {
 onMounted(() => {
   // 初始化主题
   initTheme()
+  
+  // 检查用户登录状态
+  checkUserLoginStatus()
 })
+
+/**
+ * 检查用户登录状态
+ */
+const checkUserLoginStatus = () => {
+  try {
+    // 使用 authService 检查登录状态
+    isLoggedIn.value = authService.isAuthenticated()
+    
+    if (isLoggedIn.value) {
+      const user = authService.getCurrentUser()
+      console.log('用户已登录:', user)
+    } else {
+      console.log('用户未登录')
+    }
+  } catch (error) {
+    console.error('检查登录状态失败:', error)
+    isLoggedIn.value = false
+  }
+}
 </script>
 
 <style scoped>
