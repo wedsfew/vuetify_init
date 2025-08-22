@@ -95,20 +95,14 @@ export class DomainService {
 
   /**
    * 获取可用域名后缀列表
-   * 从域名列表中提取所有唯一的域名后缀
+   * 直接调用域名后缀接口
    * @returns Promise<string[]>
    */
   async getAvailableSuffixes(): Promise<string[]> {
     try {
-      const response = await this.getDomainList()
-      if (response.data && response.data.domainList) {
-        // 从域名列表中提取后缀
-        const suffixes = response.data.domainList.map((domain: DomainInfo) => {
-          const parts = domain.Name.split('.')
-          return '.' + parts.slice(1).join('.')
-        })
-        // 去重并返回
-        return [...new Set(suffixes)] as string[]
+      const response = await http.get<ApiResponse<string[]>>('/api/domains/suffixes')
+      if (response.data && response.code === 200) {
+        return response.data
       }
       return this.getDefaultSuffixes()
     } catch (error) {
@@ -122,7 +116,7 @@ export class DomainService {
    * @returns string[]
    */
   private getDefaultSuffixes(): string[] {
-    return ['.com', '.cn', '.net', '.org', '.info']
+    return ['cblog.eu', 'test23.cblog.eu', 'twodoller.store', 'vvvv.host']
   }
 }
 

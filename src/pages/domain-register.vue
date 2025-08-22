@@ -117,7 +117,7 @@
               </v-list-item-title>
               
               <v-list-item-subtitle>
-                {{ result.available ? '可注册' : '不可用' }} • ¥{{ result.price }}/年
+                {{ result.available ? '可注册' : '不可用' }}
               </v-list-item-subtitle>
               
               <template #append>
@@ -193,18 +193,18 @@
               </v-col>
             </v-row>
             
-            <!-- 价格信息 -->
+            <!-- 域名信息 -->
             <v-card variant="tonal" color="primary" class="my-4">
               <v-card-text>
                 <div class="d-flex justify-space-between align-center">
                   <div>
-                    <div class="text-h6">注册费用</div>
+                    <div class="text-h6">免费域名注册</div>
                     <div class="text-caption text-medium-emphasis">
                       {{ selectedDomain?.domain }} × {{ registerForm.years }}年
                     </div>
                   </div>
-                  <div class="text-h5 font-weight-bold">
-                    ¥{{ totalPrice }}
+                  <div class="text-h5 font-weight-bold text-success">
+                    免费
                   </div>
                 </div>
               </v-card-text>
@@ -276,21 +276,20 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { domainService } from '@/services'
 
 // 表单引用
 const formRef = ref()
 
 // 搜索相关
 const searchQuery = ref('')
-const selectedSuffix = ref('.com')
+const selectedSuffix = ref('cblog.eu')
 const searching = ref(false)
 const searchResults = ref<Array<{domain: string, suffix: string, price: number, available: boolean}>>([])
 
 // 表单数据
 const domainForm = ref({
   domain: '',
-  suffix: '.com',
+  suffix: 'cblog.eu',
   years: 1,
   contact: {
     name: '',
@@ -311,7 +310,7 @@ const formValid = ref(false)
 
 // 注册对话框相关
 const registerDialog = ref(false)
-const selectedDomain = ref<{domain: string, price: number} | null>(null)
+const selectedDomain = ref<{domain: string} | null>(null)
 const registerForm = ref({
   name: '',
   email: '',
@@ -329,21 +328,25 @@ const loadingSuffixes = ref(false)
 const loadAvailableSuffixes = async () => {
   loadingSuffixes.value = true
   try {
-    const suffixes = await domainService.getAvailableSuffixes()
-    domainSuffixes.value = suffixes.map(suffix => ({
-      title: suffix,
-      value: suffix,
-      price: Math.floor(Math.random() * 100) + 30 // 临时价格，实际应从API获取
-    }))
+    const response = await fetch('/api/domains/suffixes')
+    const result = await response.json()
+    
+    if (result.code === 200 && result.data) {
+      domainSuffixes.value = result.data.map((suffix: string) => ({
+        title: suffix,
+        value: suffix
+      }))
+    } else {
+      throw new Error(result.message || '获取域名后缀失败')
+    }
   } catch (error) {
     console.error('加载域名后缀失败:', error)
-    // 使用默认后缀
+    // 使用默认后缀作为备选
     domainSuffixes.value = [
-      { title: '.com', value: '.com', price: 68 },
-      { title: '.cn', value: '.cn', price: 35 },
-      { title: '.net', value: '.net', price: 78 },
-      { title: '.org', value: '.org', price: 88 },
-      { title: '.info', value: '.info', price: 28 }
+      { title: 'cblog.eu', value: 'cblog.eu' },
+      { title: 'test23.cblog.eu', value: 'test23.cblog.eu' },
+      { title: 'twodoller.store', value: 'twodoller.store' },
+      { title: 'vvvv.host', value: 'vvvv.host' }
     ]
   } finally {
     loadingSuffixes.value = false
@@ -359,11 +362,6 @@ const yearOptions = ref([
   { title: '10年', value: 10 }
 ])
 
-// 计算总价格
-const totalPrice = computed(() => {
-  if (!selectedDomain.value) return 0
-  return selectedDomain.value.price * registerForm.value.years
-})
 
 // 表单验证规则
 const domainRules = [
@@ -407,11 +405,11 @@ const handleSearch = async () => {
     // 模拟搜索结果
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    const suffixes = ['.com', '.cn', '.net', '.org', '.info']
+    // 使用已加载的域名后缀
+    const suffixes = domainSuffixes.value.map(item => item.value)
     searchResults.value = suffixes.map(suffix => ({
-      domain: searchQuery.value + suffix,
+      domain: searchQuery.value + '.' + suffix,
       suffix,
-      price: Math.floor(Math.random() * 100) + 50,
       available: Math.random() > 0.3
     }))
   } finally {
@@ -420,7 +418,7 @@ const handleSearch = async () => {
 }
 
 // 注册域名
-const registerDomain = (result: {domain: string, price: number}) => {
+const registerDomain = (result: {domain: string}) => {
   selectedDomain.value = result
   registerDialog.value = true
 }
@@ -473,8 +471,7 @@ const handleRegister = async () => {
     console.log('注册域名:', {
       domain: selectedDomain.value?.domain,
       years: registerForm.value.years,
-      contact: registerForm.value,
-      totalPrice: totalPrice.value
+      contact: registerForm.value
     })
     
     registerDialog.value = false
