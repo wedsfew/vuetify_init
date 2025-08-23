@@ -154,24 +154,34 @@
       </template>
     </v-snackbar>
     
-    <!-- 成功提示 -->
-    <v-snackbar
-      v-model="showSuccess"
-      color="success"
-      timeout="3000"
-      location="top"
-    >
-      {{ successMessage }}
-    </v-snackbar>
+  <!-- 成功提示 -->
+  <v-snackbar
+    v-model="showSuccess"
+    color="success"
+    timeout="3000"
+    location="top"
+  >
+    {{ successMessage }}
+  </v-snackbar>
+  
+  <!-- 登录对话框 -->
+  <LoginDialog
+    :visible="showLoginDialog"
+    @update:visible="showLoginDialog = $event"
+    title="需要登录"
+    @login-success="handleLoginSuccess"
+    @login-cancel="handleLoginCancel"
+  />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeMount } from 'vue'
+import { ref, onMounted, onBeforeMount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { http } from '@/utils/http'
 import { authService } from '@/services/authService'
 import { useGlobalDialog } from '@/composables/useGlobalDialog'
+import LoginDialog from '@/components/LoginDialog.vue'
 
 // 路由
 const router = useRouter()
@@ -188,6 +198,7 @@ const errorMessage = ref('')
 const showSuccess = ref(false)
 const successMessage = ref('')
 const isAuthenticated = ref(false)
+const showLoginDialog = ref(false)
 
 // 域名记录接口
 interface DomainRecord {
@@ -211,7 +222,7 @@ interface DomainRecord {
 const loadDomainList = async () => {
   if (!authService.isAuthenticated()) {
     showErrorMessage('请先登录')
-    router.push('/login')
+    showLoginDialog.value = true
     return
   }
 
@@ -387,13 +398,31 @@ const showSuccessMessage = (message: string) => {
 }
 
 /**
+ * 处理登录成功
+ */
+const handleLoginSuccess = () => {
+  console.log('登录成功，加载域名列表')
+  showSuccessMessage('登录成功')
+  isAuthenticated.value = true
+  loadDomainList()
+}
+
+/**
+ * 处理登录取消
+ */
+const handleLoginCancel = () => {
+  console.log('用户取消登录')
+  router.push('/')
+}
+
+/**
  * 检查登录状态
  */
 const checkAuthStatus = async () => {
   try {
     if (!authService.isAuthenticated()) {
-      console.log('未登录状态，重定向到登录页面')
-      router.push('/login')
+      console.log('未登录状态，显示登录对话框')
+      showLoginDialog.value = true
       return false
     }
     
@@ -401,13 +430,13 @@ const checkAuthStatus = async () => {
     try {
       const isValid = await authService.validateToken()
       if (!isValid) {
-        console.log('登录令牌无效或已过期，重定向到登录页面')
-        router.push('/login')
+        console.log('登录令牌无效或已过期，显示登录对话框')
+        showLoginDialog.value = true
         return false
       }
     } catch (error) {
       console.error('验证令牌失败:', error)
-      router.push('/login')
+      showLoginDialog.value = true
       return false
     }
     
@@ -415,7 +444,7 @@ const checkAuthStatus = async () => {
     return true
   } catch (error) {
     console.error('检查登录状态失败:', error)
-    router.push('/login')
+    showLoginDialog.value = true
     return false
   }
 }
@@ -434,9 +463,27 @@ onBeforeMount(async () => {
  * 组件挂载时加载数据
  */
 onMounted(async () => {
+  // 如果用户已认证，直接加载域名列表
   if (isAuthenticated.value) {
     loadDomainList()
   }
+  
+  // 监听登录对话框的可见性变化
+  watch(showLoginDialog, (newValue, oldValue) => {
+    // 当登录对话框关闭且用户已认证时，加载域名列表
+    if (oldValue === true && newValue === false && isAuthenticated.value) {
+      console.log('登录对话框关闭，用户已认证，加载域名列表')
+      loadDomainList()
+    }
+  })
+  
+  // 监听认证状态变化
+  watch(isAuthenticated, (newValue) => {
+    if (newValue === true) {
+      console.log('用户认证状态变为已登录，加载域名列表')
+      loadDomainList()
+    }
+  })
 })
 </script>
 

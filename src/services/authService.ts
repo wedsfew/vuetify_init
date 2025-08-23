@@ -268,6 +268,33 @@ class AuthService {
     const thresholdSeconds = thresholdMinutes * 60;
     return remainingTime <= thresholdSeconds;
   }
+
+  /**
+   * 验证令牌有效性
+   * 
+   * @description 验证当前存储的JWT令牌是否有效
+   * @returns Promise<boolean> 令牌是否有效
+   */
+  async validateToken(): Promise<boolean> {
+    try {
+      // 检查本地是否有token
+      const token = this.getAuthToken();
+      if (!token) return false;
+      
+      // 检查token是否已过期
+      if (this.isTokenExpired(token)) {
+        this.logout();
+        return false;
+      }
+      
+      // 可以选择向后端发送验证请求
+      // 这里简化处理，只检查本地token的有效性
+      return true;
+    } catch (error) {
+      console.error('验证令牌失败:', error);
+      return false;
+    }
+  }
 }
 
 // 导出认证服务实例

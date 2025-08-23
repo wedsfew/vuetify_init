@@ -30,3 +30,5 @@
 
 ## 全局组件使用规定
 ### 对话框使用 [GlobalDialog.vue](../src/components/GlobalDialog.vue)
+
+## 使用git命令需要经过我的同意
