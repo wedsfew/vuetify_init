@@ -78,20 +78,20 @@
             class="domain-item d-flex align-center px-4 py-3"
             :class="{ 'domain-item-hover': true }"
           >
-            <div class="domain-column" style="flex: 2">
-              <div class="d-flex align-center">
-                <v-icon 
-                  :color="getStatusColor(domain.status)" 
-                  size="16" 
-                  class="me-2"
-                >
-                  mdi-circle
-                </v-icon>
-                <span class="font-weight-medium">
-                  {{ domain.subdomain }}.{{ domain.domain }}
-                </span>
-              </div>
-            </div>
+<div class="domain-column" style="flex: 2">
+  <div class="d-flex align-center">
+    <v-icon 
+      :color="getStatusColor(domain.status)" 
+      size="16" 
+      class="me-2"
+    >
+      mdi-circle
+    </v-icon>
+    <span class="font-weight-medium domain-name">
+      {{ domain.subdomain }}.{{ domain.domain }}
+    </span>
+  </div>
+</div>
             <div class="domain-column text-medium-emphasis" style="flex: 1.5">
               {{ formatDate(domain.createTime) }}
             </div>
@@ -129,7 +129,6 @@
               </div>
             </div>
             
-            <v-divider v-if="index < domainList.length - 1"></v-divider>
           </div>
         </div>
       </v-card-text>
