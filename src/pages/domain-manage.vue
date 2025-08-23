@@ -64,10 +64,9 @@
           <!-- 表格头部 -->
           <div class="domain-table-header d-flex px-4 py-2">
             <div class="domain-column" style="flex: 2">域名</div>
-            <div class="domain-column" style="flex: 1">IP地址</div>
-            <div class="domain-column" style="flex: 1">创建时间</div>
+            <div class="domain-column" style="flex: 1.5">创建时间</div>
             <div class="domain-column" style="flex: 1">状态</div>
-            <div class="domain-column text-center" style="flex: 1">操作</div>
+            <div class="domain-column text-center" style="flex: 1.5">操作</div>
           </div>
           
           <v-divider></v-divider>
@@ -93,10 +92,7 @@
                 </span>
               </div>
             </div>
-            <div class="domain-column text-medium-emphasis" style="flex: 1">
-              {{ domain.ipAddress }}
-            </div>
-            <div class="domain-column text-medium-emphasis" style="flex: 1">
+            <div class="domain-column text-medium-emphasis" style="flex: 1.5">
               {{ formatDate(domain.createTime) }}
             </div>
             <div class="domain-column" style="flex: 1">
@@ -108,7 +104,7 @@
                 {{ getStatusText(domain.status) }}
               </v-chip>
             </div>
-            <div class="domain-column text-center" style="flex: 1">
+            <div class="domain-column text-center" style="flex: 1.5">
               <div class="d-flex justify-center">
                 <v-btn
                   class="me-2"
@@ -208,6 +204,8 @@ interface DomainRecord {
 
 /**
  * 加载域名列表
+ * 
+ * @description 调用后端API获取当前用户的三级域名列表
  */
 const loadDomainList = async () => {
   if (!authService.isAuthenticated()) {
@@ -218,18 +216,35 @@ const loadDomainList = async () => {
 
   loading.value = true
   try {
-    // HTTP工具类已经处理了响应，直接获取data
-    const data = await http.get('/api/user/domains/subdomains')
+    console.log('开始加载用户三级域名列表...')
     
-    domainList.value = data || []
-    console.log('域名列表加载成功:', domainList.value)
+    // 调用API获取用户三级域名列表
+    const response = await http.get('/api/user/domains/subdomains')
+    
+    // 检查响应格式
+    if (response && response.code === 200 && Array.isArray(response.data)) {
+      // 直接使用响应中的data数组
+      domainList.value = response.data || []
+      console.log('域名列表加载成功:', domainList.value)
+      
+      if (domainList.value.length === 0) {
+        console.log('用户暂无三级域名记录')
+      }
+    } else {
+      console.error('响应格式不符合预期:', response)
+      domainList.value = []
+      showErrorMessage('数据格式错误，请联系管理员')
+    }
   } catch (error: any) {
     console.error('加载域名列表失败:', error)
+    domainList.value = []
     
     if (error.name === 'HttpError' && error.message.includes('登录已过期')) {
       showErrorMessage('登录已过期，请重新登录')
       authService.logout()
       router.push('/login')
+    } else if (error.name === 'BusinessError') {
+      showErrorMessage(error.message || '业务处理错误')
     } else {
       showErrorMessage(error.message || '网络错误，请稍后重试')
     }
@@ -435,7 +450,7 @@ onMounted(() => {
   
   .domain-table-header .domain-column:nth-child(2),
   .domain-item .domain-column:nth-child(2) {
-    display: none;
+    flex: 1;
   }
   
   .domain-table-header .domain-column:nth-child(3),
@@ -445,8 +460,8 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
-  .domain-table-header .domain-column:nth-child(4),
-  .domain-item .domain-column:nth-child(4) {
+  .domain-table-header .domain-column:nth-child(2),
+  .domain-item .domain-column:nth-child(2) {
     display: none;
   }
   
