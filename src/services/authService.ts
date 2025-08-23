@@ -41,31 +41,53 @@ class AuthService {
    * @returns 登录响应
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await http.post<ApiResponse<LoginResponse>>('/api/auth/login', credentials);
-    
-    if (response.data) {
-      // 存储认证信息到localStorage
-      localStorage.setItem('token', response.data.token);
+    try {
+      console.log('开始登录请求:', credentials.email);
       
-      // 从token中提取用户信息并存储
-      const userInfo = this.getUserInfoFromToken(response.data.token);
-      if (userInfo) {
-        localStorage.setItem('user', JSON.stringify(userInfo));
+      // 直接发送请求并获取原始响应
+      const response = await http.post('/api/auth/login', credentials);
+      
+      console.log('登录原始响应:', response);
+      
+      // 检查响应格式
+      if (response && typeof response === 'object') {
+        if (response.code === 200 && response.data) {
+          // 这是标准API响应格式
+          const loginData = response.data;
+          
+          console.log('提取的登录数据:', loginData);
+          
+          // 存储认证信息到localStorage
+          localStorage.setItem('token', loginData.token);
+          
+          // 从token中提取用户信息并存储
+          const userInfo = this.getUserInfoFromToken(loginData.token);
+          if (userInfo) {
+            localStorage.setItem('user', JSON.stringify(userInfo));
+          } else {
+            // 如果无法从token提取信息，使用响应中的用户信息
+            localStorage.setItem('user', JSON.stringify({
+              id: loginData.id,
+              username: loginData.username,
+              email: loginData.email,
+              role: loginData.role
+            }));
+          }
+          
+          console.log('登录成功，token有效期:', this.getTokenRemainingTime(), '秒');
+          return loginData;
+        } else {
+          console.error('登录响应格式不正确:', response);
+          throw new Error('登录响应格式不正确');
+        }
       } else {
-        // 如果无法从token提取信息，使用响应中的用户信息
-        localStorage.setItem('user', JSON.stringify({
-          id: response.data.id,
-          username: response.data.username,
-          email: response.data.email,
-          role: response.data.role
-        }));
+        console.error('登录响应数据为空或格式错误');
+        throw new Error('登录响应数据为空或格式错误');
       }
-      
-      console.log('登录成功，token有效期:', this.getTokenRemainingTime(), '秒');
-      return response.data;
+    } catch (error) {
+      console.error('登录过程中发生错误:', error);
+      throw error;
     }
-    
-    throw new Error('登录失败');
   }
 
   /**

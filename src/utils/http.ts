@@ -87,23 +87,36 @@ class HttpClient {
     this.instance.interceptors.response.use(
       (response: AxiosResponse<ApiResponse>) => {
         // 2xx 范围内的状态码都会触发该函数
-        console.log('响应数据:', response.data)
+        console.log('响应数据:', JSON.stringify(response.data))
 
-        const { code, message, data } = response.data
+        // 检查响应数据结构
+        if (!response.data) {
+          console.error('响应数据为空')
+          return Promise.reject(new Error('响应数据为空'))
+        }
 
-        // 根据API文档的业务状态码处理响应
-        if (code === 200 || code === 201) {
-          // 成功响应，修改response.data为业务数据并返回response
-          response.data = data
-          return response
-        } else {
-          // 业务错误，抛出异常
-          const error = new Error(message || '请求失败')
-          error.name = 'BusinessError'
-          // 添加错误码信息
-          ;(error as any).code = code
-          ;(error as any).data = data
-          return Promise.reject(error)
+        try {
+          const { code, message, data } = response.data
+
+          console.log('解析响应:', { code, message, hasData: !!data })
+
+          // 根据API文档的业务状态码处理响应
+          if (code === 200 || code === 201) {
+            // 成功响应，直接返回完整的响应数据
+            // 不要修改response.data，这会导致数据丢失
+            return response
+          } else {
+            // 业务错误，抛出异常
+            const error = new Error(message || '请求失败')
+            error.name = 'BusinessError'
+            // 添加错误码信息
+            ;(error as any).code = code
+            ;(error as any).data = data
+            return Promise.reject(error)
+          }
+        } catch (parseError) {
+          console.error('解析响应数据失败:', parseError, '原始响应:', response.data)
+          return Promise.reject(new Error('解析响应数据失败'))
         }
       },
       (error) => {
@@ -179,7 +192,10 @@ class HttpClient {
    * POST请求
    */
   post<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
-    return this.instance.post(url, data, config).then(response => response.data)
+    return this.instance.post(url, data, config).then(response => {
+      console.log('POST请求响应原始数据:', response);
+      return response.data;
+    })
   }
 
   /**
