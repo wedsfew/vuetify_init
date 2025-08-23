@@ -167,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { http } from '@/utils/http'
 import { authService } from '@/services/authService'
@@ -187,6 +187,7 @@ const showError = ref(false)
 const errorMessage = ref('')
 const showSuccess = ref(false)
 const successMessage = ref('')
+const isAuthenticated = ref(false)
 
 // 域名记录接口
 interface DomainRecord {
@@ -386,10 +387,56 @@ const showSuccessMessage = (message: string) => {
 }
 
 /**
+ * 检查登录状态
+ */
+const checkAuthStatus = async () => {
+  try {
+    if (!authService.isAuthenticated()) {
+      console.log('未登录状态，重定向到登录页面')
+      router.push('/login')
+      return false
+    }
+    
+    // 验证令牌有效性
+    try {
+      const isValid = await authService.validateToken()
+      if (!isValid) {
+        console.log('登录令牌无效或已过期，重定向到登录页面')
+        router.push('/login')
+        return false
+      }
+    } catch (error) {
+      console.error('验证令牌失败:', error)
+      router.push('/login')
+      return false
+    }
+    
+    isAuthenticated.value = true
+    return true
+  } catch (error) {
+    console.error('检查登录状态失败:', error)
+    router.push('/login')
+    return false
+  }
+}
+
+/**
+ * 组件挂载前检查登录状态
+ */
+onBeforeMount(async () => {
+  const authStatus = await checkAuthStatus()
+  if (authStatus) {
+    console.log('用户已登录，准备加载域名列表')
+  }
+})
+
+/**
  * 组件挂载时加载数据
  */
-onMounted(() => {
-  loadDomainList()
+onMounted(async () => {
+  if (isAuthenticated.value) {
+    loadDomainList()
+  }
 })
 </script>
 
