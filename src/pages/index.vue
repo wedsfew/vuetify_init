@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import DomainRegister from './domain-register.vue'
 import DomainManage from './domain-manage.vue'
@@ -424,35 +424,65 @@ const checkLoginStatus = async () => {
 }
 
 /**
+ * 检查用户登录状态
+ */
+const checkUserLoginStatus = async () => {
+  try {
+    // 首先检查本地存储中是否有token
+    const token = localStorage.getItem('token')
+    if (!token) {
+      console.log('未找到登录令牌，用户未登录')
+      isLoggedIn.value = false
+      return false
+    }
+    
+    // 使用 authService 检查登录状态
+    isLoggedIn.value = authService.isAuthenticated()
+    
+    if (isLoggedIn.value) {
+      // 验证令牌有效性
+      try {
+        const isValid = await authService.validateToken()
+        if (!isValid) {
+          console.log('登录令牌无效或已过期')
+          isLoggedIn.value = false
+          return false
+        }
+        
+        const user = authService.getCurrentUser()
+        console.log('用户已登录:', user)
+        return true
+      } catch (error) {
+        console.error('验证令牌失败:', error)
+        isLoggedIn.value = false
+        return false
+      }
+    } else {
+      console.log('用户未登录')
+      return false
+    }
+  } catch (error) {
+    console.error('检查登录状态失败:', error)
+    isLoggedIn.value = false
+    return false
+  }
+}
+
+/**
+ * 在组件挂载前检查登录状态
+ */
+onBeforeMount(async () => {
+  console.log('组件挂载前检查登录状态')
+  await checkUserLoginStatus()
+})
+
+/**
  * 组件挂载时的初始化操作
  */
 onMounted(() => {
   // 初始化主题
   initTheme()
-  
-  // 检查用户登录状态
-  checkUserLoginStatus()
 })
-
-/**
- * 检查用户登录状态
- */
-const checkUserLoginStatus = () => {
-  try {
-    // 使用 authService 检查登录状态
-    isLoggedIn.value = authService.isAuthenticated()
-    
-    if (isLoggedIn.value) {
-      const user = authService.getCurrentUser()
-      console.log('用户已登录:', user)
-    } else {
-      console.log('用户未登录')
-    }
-  } catch (error) {
-    console.error('检查登录状态失败:', error)
-    isLoggedIn.value = false
-  }
-}
 </script>
 
 <style scoped>
