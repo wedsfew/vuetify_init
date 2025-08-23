@@ -197,6 +197,11 @@ const handleLogin = async () => {
     
     // 关闭对话框
     closeDialog();
+    
+    // 重新加载页面以确保所有组件都能正确反映用户已登录的状态
+    setTimeout(() => {
+      window.location.reload();
+    }, 500); // 短暂延迟以确保对话框关闭动画完成
   } catch (error: any) {
     console.error('登录失败:', error);
     

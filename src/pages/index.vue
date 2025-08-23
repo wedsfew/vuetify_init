@@ -375,8 +375,8 @@ const handleLogout = async () => {
       
       console.log('用户已退出登录')
       
-      // 可选：跳转到登录页面
-      // router.push('/login')
+      // 重新加载页面
+      window.location.reload()
     }
   } catch (error) {
     console.error('退出登录失败:', error)

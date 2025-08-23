@@ -38,6 +38,8 @@
                 single-line
                 clearable
                 @keyup.enter="handleSearch"
+                @input="filterInput"
+                :rules="[v => /^[a-zA-Z0-9]*$/.test(v) || '只能输入字母和数字']"
               >
                 <template #prepend-inner>
                   <v-icon color="primary">mdi-magnify</v-icon>
@@ -385,6 +387,12 @@ const onDomainInput = () => {
   if (domainForm.value.domain && domainForm.value.domain.length > 2) {
     checkDomainAvailability()
   }
+}
+
+// 过滤输入，只允许字母和数字
+const filterInput = () => {
+  // 使用正则表达式过滤非字母数字字符
+  searchQuery.value = searchQuery.value.replace(/[^a-zA-Z0-9]/g, '')
 }
 
 // 检查域名可用性
